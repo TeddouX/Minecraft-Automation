@@ -3,13 +3,12 @@
 	"id": "minecraft-automation",
 	"version": "${version}",
 	"name": "Minecraft Automation",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A Minecraft mod used to automate basic tasks",
 	"authors": [
-		"Me!"
+		"Teddy"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/TeddouX/Minecraft-Automation-1.21.4"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/minecraft-automation/icon.png",

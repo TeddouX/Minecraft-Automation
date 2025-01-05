@@ -3,6 +3,8 @@ package teddy.minecraftautomation.blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -63,6 +66,7 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
         float radiusPlus = 8f + radius;
         float radiusMinus = 8f - radius;
 
+        // Create all boxes
         VoxelShape middle = Block.box(radiusMinus, heightOffset, radiusMinus, radiusPlus, height, radiusPlus);
         VoxelShape N = Block.box(radiusMinus, heightOffset, 0f, radiusPlus, height, radiusPlus);
         VoxelShape E = Block.box(radiusPlus, heightOffset, radiusMinus, 16f, height, radiusPlus);
@@ -83,7 +87,7 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
         return voxelShapes;
     }
 
-    private BooleanProperty getFacingPropertyFromDirection(Direction dir) {
+    public static BooleanProperty getFacingPropertyFromDirection(Direction dir) {
         return switch (dir) {
             case NORTH -> NORTH;
             case EAST -> EAST;

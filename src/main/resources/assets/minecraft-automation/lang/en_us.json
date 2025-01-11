@@ -1,3 +1,8 @@
 {
-  "item.minecraft-automation.wooden_item_pipe": "Wooden Pipe"
+  "item.minecraft-automation.wooden_item_pipe": "Wooden Pipe",
+  "item.minecraft-automation.wooden_item_pump": "Wooden Item Pump",
+
+  "block.minecraft-automation.item_pipe.tooltip.items_per_transfer": "Items per transfer: %s",
+  "block.minecraft-automation.item_pipe.tooltip.transfer_cooldown": "Transfer cooldown: %ss",
+  "block.minecraft-automation.item_pump.tooltip.induced_pressure": "Induced pressure: %spu"
 }

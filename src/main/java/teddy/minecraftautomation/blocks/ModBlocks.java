@@ -16,7 +16,11 @@ import java.util.function.Function;
 
 public class ModBlocks {
     public static final Block WOODEN_ITEM_PIPE = register("wooden_item_pipe",
-            (BlockBehaviour.Properties properties) -> new ItemPipeBlock(1, 2, properties),
+            (BlockBehaviour.Properties properties) -> new ItemPipeBlock(16, 1, 7, properties),
+            BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD), true);
+
+    public static final Block WOODEN_ITEM_PUMP = register("wooden_item_pump",
+            (BlockBehaviour.Properties properties) -> new ItemPumpBlock(16, 1, 7, properties),
             BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD), true);
 
     public static void initialize() {

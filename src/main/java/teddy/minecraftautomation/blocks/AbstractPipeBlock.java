@@ -3,7 +3,7 @@ package teddy.minecraftautomation.blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -32,6 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractPipeBlock extends BaseEntityBlock {
+    public final int MAX_PRESSURE;
+
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -40,8 +41,10 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
     protected final Map<String, VoxelShape> SHAPES;
 
-    public AbstractPipeBlock(Properties properties) {
+    public AbstractPipeBlock(int maxPressure, Properties properties) {
         super(properties);
+
+        this.MAX_PRESSURE = maxPressure;
 
         this.registerDefaultState(super.defaultBlockState()
                 .setValue(NORTH, false)
@@ -98,6 +101,18 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
         };
     }
 
+    public static @Nullable Direction getDirectionFromFacingProperty(BooleanProperty prop) {
+        if (prop == AbstractPipeBlock.NORTH) return Direction.NORTH;
+        if (prop == AbstractPipeBlock.EAST) return Direction.EAST;
+        if (prop == AbstractPipeBlock.SOUTH) return Direction.SOUTH;
+        if (prop == AbstractPipeBlock.WEST) return Direction.WEST;
+        if (prop == AbstractPipeBlock.UP) return Direction.UP;
+        if (prop == AbstractPipeBlock.DOWN) return Direction.DOWN;
+
+        return null;
+    }
+
+
     @Override
     public @NotNull VoxelShape getInteractionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos) {
         VoxelShape shape = this.SHAPES.get("middle");
@@ -123,6 +138,11 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
     }
 
     abstract boolean canConnect(Level world, BlockPos pos, Direction direction);
+
+    @Override
+    public void playerDestroy(Level level, Player player, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, ItemStack itemStack) {
+        super.playerDestroy(level, player, blockPos, blockState, blockEntity, itemStack);
+    }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {

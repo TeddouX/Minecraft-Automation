@@ -16,6 +16,11 @@ public class ModBlockEntities {
                     FabricBlockEntityTypeBuilder.create((BlockPos pos, BlockState state) -> new ItemPipeBlockEntity(pos, state, 0, 0),
                             ModBlocks.WOODEN_ITEM_PIPE).build());
 
+    public static final BlockEntityType<ItemPumpBlockEntity> ITEM_PUMP_BE =
+            Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MinecraftAutomation.MOD_ID, "item_pump_be"),
+                    FabricBlockEntityTypeBuilder.create((BlockPos pos, BlockState state) -> new ItemPumpBlockEntity(pos, state, 0, 0, 0),
+                            ModBlocks.WOODEN_ITEM_PUMP).build());
+
     public static void initialize() {
         MinecraftAutomation.LOGGER.info("Initializing ModBlockEntities");
     }

@@ -14,114 +14,89 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import teddy.minecraftautomation.blocks.ItemPipeBlock;
 import teddy.minecraftautomation.blocks.ItemPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
 
-public class ItemPipeBlockEntity extends BaseContainerBlockEntity {
+public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
     private NonNullList<ItemStack> items;
     private int itemsPerTransfer;
     private int transferCooldown;
+    public int inducedPressure;
     public int cooldown = 0;
     public int directionIndex = 0;
-    public int pressure = 0;
-    public BlockPos itemPumpPos = null;
 
+    public ItemPumpBlockEntity(BlockPos blockPos, BlockState blockState, int inducedPressure, int itemsPerTransfer, int transferCooldown) {
+        super(ModBlockEntities.ITEM_PUMP_BE, blockPos, blockState);
 
-    public ItemPipeBlockEntity(BlockPos blockPos, BlockState blockState, int itemsPerTransfer, int transferCooldown) {
-        super(ModBlockEntities.ITEM_PIPE_BE, blockPos, blockState);
-
+        this.inducedPressure = inducedPressure;
         this.itemsPerTransfer = itemsPerTransfer;
         this.transferCooldown = transferCooldown;
 
         this.items = NonNullList.withSize(1, ItemStack.EMPTY);
     }
 
-    public static void tick(Level level, BlockPos blockPos, BlockState state, ItemPipeBlockEntity itemPipeBlockEntity) {
+    public static void tick(Level level, BlockPos blockPos, BlockState state, ItemPumpBlockEntity itemPumpBlockEntity) {
         if (level.isClientSide() || !(level instanceof ServerLevel))
             return;
 
         ServerLevel serverLevel = (ServerLevel) level;
 
-        // Update pressure
-        itemPipeBlockEntity.pressure = getPressureAmountForBlock(level, state, blockPos);
-
-        if (itemPipeBlockEntity.pressure <= 0) return;
-
         // Only transfer items when the cooldown reaches 0
-        itemPipeBlockEntity.cooldown++;
-        if (itemPipeBlockEntity.cooldown >= itemPipeBlockEntity.transferCooldown)
-            itemPipeBlockEntity.cooldown = 0;
+        itemPumpBlockEntity.cooldown++;
+        if (itemPumpBlockEntity.cooldown >= itemPumpBlockEntity.transferCooldown)
+            itemPumpBlockEntity.cooldown = 0;
         else
             return;
 
+        ItemPumpBlock itemPumpBlock = (ItemPumpBlock) state.getBlock();
         Direction[] directions = Direction.values();
         for (int i = 0; i < directions.length; i++) {
             // Used so that it doesn't check the same direction two times in a row if it has other connections
-            itemPipeBlockEntity.directionIndex++;
-            itemPipeBlockEntity.directionIndex %= directions.length;
+            itemPumpBlockEntity.directionIndex++;
+            itemPumpBlockEntity.directionIndex %= directions.length;
+            Direction dir = directions[itemPumpBlockEntity.directionIndex];
+            boolean success = false;
 
-            boolean success = ContainerUtils.handleDirection(
-                    directions[itemPipeBlockEntity.directionIndex],
-                    serverLevel,
-                    blockPos,
-                    state,
-                    itemPipeBlockEntity,
-                    ContainerUtils.Flow.OUTGOING,
-                    itemPipeBlockEntity.itemsPerTransfer);
+            if (itemPumpBlock.getOutputDirections(state).contains(dir)) {
+                success = ContainerUtils.handleDirection(dir,
+                        serverLevel,
+                        blockPos,
+                        state,
+                        itemPumpBlockEntity,
+                        ContainerUtils.Flow.INCOMING,
+                        itemPumpBlockEntity.itemsPerTransfer);
+
+            } else if (itemPumpBlock.getInputDirections(state).contains(dir)) {
+                success = ContainerUtils.handleDirection(dir,
+                        serverLevel,
+                        blockPos,
+                        state,
+                        itemPumpBlockEntity,
+                        ContainerUtils.Flow.OUTGOING,
+                        itemPumpBlockEntity.itemsPerTransfer);
+            }
 
             if (success)
                 break;
         }
     }
 
-    public static int getPressureAmountForBlock(Level level, BlockState state, BlockPos pos) {
-        Direction[] directions = Direction.values();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-
-        if (!(state.getBlock() instanceof ItemPipeBlock) || !(blockEntity instanceof ItemPipeBlockEntity))
-            return 0;
-
-        int maxPressure = 0;
-        for (Direction dir : directions) {
-            BlockState relativeBlockState = level.getBlockState(pos.relative(dir));
-            BlockEntity relativeBlockEntity = level.getBlockEntity(pos.relative(dir));
-
-            // If the other block is an item pump and the pipe is connected to its input
-            if (relativeBlockState.getBlock() instanceof ItemPumpBlock itemPumpBlock
-                    && state.getValue(ItemPipeBlock.getFacingPropertyFromDirection(dir))
-                    && itemPumpBlock.getOutputDirections(relativeBlockState).contains(dir)) {
-
-                if (!(relativeBlockEntity instanceof ItemPumpBlockEntity itemPumpBlockEntity))
-                    continue;
-
-                maxPressure = Math.max(itemPumpBlockEntity.inducedPressure, maxPressure);
-            } else if (relativeBlockState.getBlock() instanceof ItemPipeBlock) {
-                if (!(relativeBlockEntity instanceof ItemPipeBlockEntity relativeItemPipeBlockEntity))
-                    continue;
-
-                maxPressure = Math.max(relativeItemPipeBlockEntity.pressure - 1, maxPressure);
-            }
-        }
-
-        return maxPressure;
-    }
-
     @Override
     protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
         super.saveAdditional(nbt, provider);
 
-        ContainerHelper.saveAllItems(nbt, this.items, provider);
+        // Save the inventory
+        if (!this.trySaveLootTable(nbt))
+            ContainerHelper.saveAllItems(nbt, this.items, provider);
 
         nbt.putInt("timer", this.cooldown);
         nbt.putInt("direction_index", this.directionIndex);
         nbt.putInt("items_per_transfer", this.itemsPerTransfer);
         nbt.putInt("transfer_cooldown", this.transferCooldown);
-        nbt.putInt("pressure", this.pressure);
+        nbt.putInt("induced_pressure", this.inducedPressure);
     }
 
     @Override
@@ -129,13 +104,15 @@ public class ItemPipeBlockEntity extends BaseContainerBlockEntity {
         super.loadAdditional(nbt, provider);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 
-        ContainerHelper.loadAllItems(nbt, this.items, provider);
+        // Load the inventory
+        if (!this.tryLoadLootTable(nbt))
+            ContainerHelper.loadAllItems(nbt, this.items, provider);
 
         this.cooldown = nbt.getInt("timer");
         this.directionIndex = nbt.getInt("direction_index");
         this.itemsPerTransfer = nbt.getInt("items_per_transfer");
         this.transferCooldown = nbt.getInt("transfer_cooldown");
-        this.pressure = nbt.getInt("pressure");
+        this.inducedPressure = nbt.getInt("induced_pressure");
     }
 
     @Override
@@ -197,13 +174,12 @@ public class ItemPipeBlockEntity extends BaseContainerBlockEntity {
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int i, Inventory inventory) {
-        return null;
+    protected @NotNull Component getDefaultName() {
+        return Component.empty();
     }
 
     @Override
-    protected Component getDefaultName() {
+    protected AbstractContainerMenu createMenu(int i, Inventory inventory) {
         return null;
     }
-
 }

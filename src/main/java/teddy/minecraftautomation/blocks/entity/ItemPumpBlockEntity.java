@@ -7,20 +7,19 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.ItemPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
+import teddy.minecraftautomation.utils.ImplementedInventory;
 
-public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
+public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements ImplementedInventory {
     private NonNullList<ItemStack> items;
     private int itemsPerTransfer;
     private int transferCooldown;
@@ -39,10 +38,8 @@ public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState state, ItemPumpBlockEntity itemPumpBlockEntity) {
-        if (level.isClientSide() || !(level instanceof ServerLevel))
+        if (level.isClientSide() || !(level instanceof ServerLevel serverLevel))
             return;
-
-        ServerLevel serverLevel = (ServerLevel) level;
 
         // Only transfer items when the cooldown reaches 0
         itemPumpBlockEntity.cooldown++;
@@ -61,7 +58,7 @@ public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
             boolean success = false;
 
             if (itemPumpBlock.getOutputDirections(state).contains(dir)) {
-                success = ContainerUtils.handleDirection(dir,
+                success = ContainerUtils.ItemContainer.handleDirection(dir,
                         serverLevel,
                         blockPos,
                         state,
@@ -70,7 +67,7 @@ public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
                         itemPumpBlockEntity.itemsPerTransfer);
 
             } else if (itemPumpBlock.getInputDirections(state).contains(dir)) {
-                success = ContainerUtils.handleDirection(dir,
+                success = ContainerUtils.ItemContainer.handleDirection(dir,
                         serverLevel,
                         blockPos,
                         state,
@@ -86,33 +83,30 @@ public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
 
     @Override
     protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.saveAdditional(nbt, provider);
-
         // Save the inventory
-        if (!this.trySaveLootTable(nbt))
-            ContainerHelper.saveAllItems(nbt, this.items, provider);
+        ContainerHelper.saveAllItems(nbt, this.items, provider);
 
         nbt.putInt("timer", this.cooldown);
-        nbt.putInt("direction_index", this.directionIndex);
-        nbt.putInt("items_per_transfer", this.itemsPerTransfer);
-        nbt.putInt("transfer_cooldown", this.transferCooldown);
-        nbt.putInt("induced_pressure", this.inducedPressure);
+        nbt.putInt("directionIndex", this.directionIndex);
+        nbt.putInt("itemsPerTransfer", this.itemsPerTransfer);
+        nbt.putInt("transferCooldown", this.transferCooldown);
+        nbt.putInt("inducedPressure", this.inducedPressure);
+
+        super.saveAdditional(nbt, provider);
     }
 
     @Override
     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
         super.loadAdditional(nbt, provider);
-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 
-        // Load the inventory
-        if (!this.tryLoadLootTable(nbt))
-            ContainerHelper.loadAllItems(nbt, this.items, provider);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(nbt, this.items, provider); // Load the inventory
 
         this.cooldown = nbt.getInt("timer");
-        this.directionIndex = nbt.getInt("direction_index");
-        this.itemsPerTransfer = nbt.getInt("items_per_transfer");
-        this.transferCooldown = nbt.getInt("transfer_cooldown");
-        this.inducedPressure = nbt.getInt("induced_pressure");
+        this.directionIndex = nbt.getInt("directionIndex");
+        this.itemsPerTransfer = nbt.getInt("itemsPerTransfer");
+        this.transferCooldown = nbt.getInt("transferCooldown");
+        this.inducedPressure = nbt.getInt("inducedPressure");
     }
 
     @Override
@@ -123,54 +117,6 @@ public class ItemPumpBlockEntity extends RandomizableContainerBlockEntity  {
     @Override
     protected void setItems(NonNullList<ItemStack> items) {
         this.items = items;
-    }
-
-    @Override
-    public int getContainerSize() {
-        return this.getItems().size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.getItems().stream().allMatch(ItemStack::isEmpty);
-    }
-
-    @Override
-    public @NotNull ItemStack getItem(int index) {
-        return this.getItems().get(index);
-    }
-
-    @Override
-    public @NotNull ItemStack removeItem(int index, int amount) {
-        ItemStack itemStack = ContainerHelper.removeItem(this.getItems(), index, amount);
-        if (!itemStack.isEmpty()) {
-            setChanged();
-        }
-
-        return itemStack;
-    }
-
-    @Override
-    public @NotNull ItemStack removeItemNoUpdate(int i) {
-        return ContainerHelper.takeItem(getItems(), i);
-    }
-
-    @Override
-    public void setItem(int i, ItemStack itemStack) {
-        getItems().set(i, itemStack);
-        if (itemStack.getCount() > getMaxStackSize())
-            itemStack.setCount(getMaxStackSize());
-        setChanged();
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return Container.stillValidBlockEntity(this, player);
-    }
-
-    @Override
-    public void clearContent() {
-        getItems().clear();
     }
 
     @Override

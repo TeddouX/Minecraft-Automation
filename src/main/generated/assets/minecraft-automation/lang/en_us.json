@@ -1,0 +1,13 @@
+{
+  "block.minecraft-automation.item_pipe.tooltip.items_per_transfer": "Items per transfer: %s",
+  "block.minecraft-automation.item_pipe.tooltip.transfer_cooldown": "Transfer cooldown: %ss",
+  "block.minecraft-automation.item_pump.tooltip.induced_pressure": "Induced pressure: %spu",
+  "block.minecraft-automation.item_pump.tooltip.items_per_transfer": "Items per transfer: %s",
+  "block.minecraft-automation.item_pump.tooltip.transfer_cooldown": "Transfer cooldown: %ss",
+  "block.minecraft-automation.pipe.tooltip.max_pressure": "Max pressure: %spu",
+  "item.minecraft-automation.wooden_fluid_pipe": "Wooden Fluid Pipe",
+  "item.minecraft-automation.wooden_fluid_pump": "Wooden Fluid Pump",
+  "item.minecraft-automation.wooden_item_pipe": "Wooden Item Pipe",
+  "item.minecraft-automation.wooden_item_pump": "Wooden Item Pump",
+  "itemGroup.mod_item_group": "Minecraft Automation"
+}

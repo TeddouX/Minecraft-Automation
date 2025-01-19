@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "teddy.minecraftautomation.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ModClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

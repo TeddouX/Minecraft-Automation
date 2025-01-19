@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft-automation:block/item_pipe_half",
+  "textures": {
+    "texture": "minecraft:block/oak_planks"
+  }
+}

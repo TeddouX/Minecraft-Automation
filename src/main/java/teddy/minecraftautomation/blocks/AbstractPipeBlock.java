@@ -1,10 +1,14 @@
 package teddy.minecraftautomation.blocks;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -26,12 +30,18 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.utils.OrientedContainer;
+import teddy.minecraftautomation.utils.Tooltip;
 
+import javax.tools.Tool;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractPipeBlock extends BaseEntityBlock {
-    public final int MAX_PRESSURE;
+public abstract class AbstractPipeBlock extends BaseEntityBlock implements OrientedContainer {
+    final int maxPressure;
 
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
@@ -41,10 +51,12 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
     protected final Map<String, VoxelShape> SHAPES;
 
+    public static final Tooltip MAX_PRESSURE_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "pipe", "max_pressure", "Max pressure: %spu") ;
+
     public AbstractPipeBlock(int maxPressure, Properties properties) {
         super(properties);
 
-        this.MAX_PRESSURE = maxPressure;
+        this.maxPressure = maxPressure;
 
         this.registerDefaultState(super.defaultBlockState()
                 .setValue(NORTH, false)
@@ -101,18 +113,6 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
         };
     }
 
-    public static @Nullable Direction getDirectionFromFacingProperty(BooleanProperty prop) {
-        if (prop == AbstractPipeBlock.NORTH) return Direction.NORTH;
-        if (prop == AbstractPipeBlock.EAST) return Direction.EAST;
-        if (prop == AbstractPipeBlock.SOUTH) return Direction.SOUTH;
-        if (prop == AbstractPipeBlock.WEST) return Direction.WEST;
-        if (prop == AbstractPipeBlock.UP) return Direction.UP;
-        if (prop == AbstractPipeBlock.DOWN) return Direction.DOWN;
-
-        return null;
-    }
-
-
     @Override
     public @NotNull VoxelShape getInteractionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos) {
         VoxelShape shape = this.SHAPES.get("middle");
@@ -138,6 +138,11 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
     }
 
     abstract boolean canConnect(Level world, BlockPos pos, Direction direction);
+    @Override
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
+        list.add(Component.translatable(MAX_PRESSURE_TOOLTIP.getTranslationKey(), this.maxPressure)
+                .withStyle(ChatFormatting.DARK_GRAY));
+    }
 
     @Override
     public void playerDestroy(Level level, Player player, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, ItemStack itemStack) {
@@ -196,4 +201,8 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public abstract <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType);
+
+    public ArrayList<Direction> getInputAndOutputDirections() {
+        return new ArrayList<>(List.of(Direction.values()));
+    }
 }

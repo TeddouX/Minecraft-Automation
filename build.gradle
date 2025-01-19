@@ -18,18 +18,6 @@ repositories {
 	// for more information about repositories.
 }
 
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"minecraft-automation" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-
-}
-
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -53,6 +41,12 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }
 
+fabricApi {
+	configureDataGeneration() {
+		client = true
+	}
+}
+
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
@@ -64,6 +58,8 @@ java {
 }
 
 jar {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}

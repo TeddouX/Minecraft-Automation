@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft-automation:block/fluid_tank",
+  "textures": {
+    "texture": "minecraft:block/diamond_block"
+  }
+}

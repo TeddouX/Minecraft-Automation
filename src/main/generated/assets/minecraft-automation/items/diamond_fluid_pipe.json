@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "minecraft-automation:block/diamond_fluid_pipe_inventory"
+  }
+}

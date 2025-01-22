@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "": {
+      "model": "minecraft-automation:block/iron_fluid_tank",
+      "uvlock": false
+    }
+  }
+}

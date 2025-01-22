@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "axis=x,negative_axis=false": {
+      "model": "minecraft-automation:block/netherite_fluid_pump",
+      "y": 90
+    },
+    "axis=x,negative_axis=true": {
+      "model": "minecraft-automation:block/netherite_fluid_pump",
+      "y": 270
+    },
+    "axis=y,negative_axis=false": {
+      "model": "minecraft-automation:block/netherite_fluid_pump",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,negative_axis=true": {
+      "model": "minecraft-automation:block/netherite_fluid_pump",
+      "x": 270,
+      "y": 90
+    },
+    "axis=z,negative_axis=false": {
+      "model": "minecraft-automation:block/netherite_fluid_pump"
+    },
+    "axis=z,negative_axis=true": {
+      "model": "minecraft-automation:block/netherite_fluid_pump",
+      "y": 180
+    }
+  }
+}

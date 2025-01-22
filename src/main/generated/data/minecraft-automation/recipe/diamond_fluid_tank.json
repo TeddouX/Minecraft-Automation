@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:diamond",
+    "D": "minecraft:polished_deepslate",
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "#D#",
+    "GGG",
+    "#D#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft-automation:diamond_fluid_tank"
+  }
+}

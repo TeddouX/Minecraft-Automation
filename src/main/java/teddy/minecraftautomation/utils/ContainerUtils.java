@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.MinecraftAutomationClient;
 import teddy.minecraftautomation.blocks.*;
 import teddy.minecraftautomation.blocks.entity.FluidPipeBlockEntity;
 import teddy.minecraftautomation.blocks.entity.ItemPipeBlockEntity;
@@ -222,6 +224,10 @@ public class ContainerUtils {
             if (destStorage == null) {
                 if (level.getFluidState(destPos) != Fluids.EMPTY.defaultFluidState() && canExtract(dir, level, sourcePos, sourceState) && flow == Flow.INCOMING) {
                     FluidState fluidState = level.getFluidState(destPos);
+
+                    if (!fluidState.isSource())
+                        return false;
+
                     FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
 
                     // This is if the block is a Fluid

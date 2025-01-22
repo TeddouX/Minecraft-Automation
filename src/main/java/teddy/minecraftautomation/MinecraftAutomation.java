@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import teddy.minecraftautomation.blocks.ModBlocks;
 import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
 import teddy.minecraftautomation.items.ModCreativeTab;
+import teddy.minecraftautomation.items.ModItems;
 
 public class MinecraftAutomation implements ModInitializer {
 	public static final String MOD_ID = "minecraft-automation";
@@ -14,6 +15,7 @@ public class MinecraftAutomation implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModBlocks.initialize();
+		ModItems.initialize();
 		ModBlockEntities.initialize();
 		ModCreativeTab.initialize();
 	}

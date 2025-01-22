@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:gold_ingot",
+    "C": "minecraft:chest",
+    "O": "minecraft-automation:pipe_joint",
+    "P": "minecraft-automation:gold_item_pipe"
+  },
+  "pattern": [
+    "O#O",
+    "CPC",
+    "O#O"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft-automation:gold_item_pump"
+  }
+}

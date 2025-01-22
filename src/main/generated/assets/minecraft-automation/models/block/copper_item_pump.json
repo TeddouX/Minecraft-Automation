@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft-automation:block/item_pump",
+  "textures": {
+    "texture": "minecraft:block/copper_block"
+  }
+}

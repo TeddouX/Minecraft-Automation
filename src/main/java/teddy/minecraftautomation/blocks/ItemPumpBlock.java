@@ -5,6 +5,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.blocks.entity.ItemPipeBlockEntity;
 import teddy.minecraftautomation.blocks.entity.ItemPumpBlockEntity;
 import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
 import teddy.minecraftautomation.utils.Tooltip;
@@ -27,34 +30,37 @@ import java.util.List;
 public class ItemPumpBlock extends AbstractPumpBlock {
     private final int itemsPerTransfer;
     private final int transferCooldown;
-    private final int inducedPressure;
-
-    public static final Tooltip ITEMS_PER_TRANSFER_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "item_pump", "items_per_transfer", "Items per transfer: %s");
-    public static final Tooltip TRANSFER_COOLDOW_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "item_pump", "transfer_cooldown", "Transfer cooldown: %ss");
-    public static final Tooltip INDUCED_PRESSURE_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "item_pump", "induced_pressure", "Induced pressure: %spu");
 
     public ItemPumpBlock(int inducedPressure, int itemsPerTransfer, int transferCooldown, Properties properties) {
-        super(properties);
+        super(inducedPressure, properties);
 
         this.itemsPerTransfer = itemsPerTransfer;
         this.transferCooldown = transferCooldown;
-        this.inducedPressure = inducedPressure;
     }
 
     @Override
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
-        list.add(Component.translatable(ITEMS_PER_TRANSFER_TOOLTIP.getTranslationKey(), this.itemsPerTransfer)
-                .withStyle(ChatFormatting.DARK_GRAY));
+        super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
 
-        // From ticks to seconds
-        float transferCooldownSeconds = (((float) this.transferCooldown)) / 20f;
+        list.add(Component.translatable(ItemPipeBlock.ITEMS_PER_TRANSFER_TOOLTIP.getTranslationKey(), this.itemsPerTransfer).withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(ItemPipeBlock.TRANSFER_COOLDOW_TOOLTIP.getTranslationKey(), Tooltip.getSeconds(this.transferCooldown)).withStyle(ChatFormatting.DARK_GRAY));
+    }
 
-        list.add(Component.translatable(TRANSFER_COOLDOW_TOOLTIP.getTranslationKey(),
-                // Round to .01
-                ((float) Math.round(transferCooldownSeconds * 100f)) / 100f).withStyle(ChatFormatting.DARK_GRAY));
+    @Override
+    protected void onRemove(BlockState blockState, Level level, BlockPos blockPos, BlockState blockState2, boolean bl) {
+        if (!blockState.is(blockState2.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(blockPos);
+            if (blockEntity instanceof ItemPumpBlockEntity itemPumpBlockEntity) {
+                if (level instanceof ServerLevel) {
+                    Containers.dropContents(level, blockPos, itemPumpBlockEntity);
+                }
 
-        list.add(Component.translatable(INDUCED_PRESSURE_TOOLTIP.getTranslationKey(), this.inducedPressure)
-                .withStyle(ChatFormatting.DARK_GRAY));
+                super.onRemove(blockState, level, blockPos, blockState2, bl);
+                level.updateNeighbourForOutputSignal(blockPos, this);
+            } else {
+                super.onRemove(blockState, level, blockPos, blockState2, bl);
+            }
+        }
     }
 
     @Override

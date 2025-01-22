@@ -1,39 +1,33 @@
 package teddy.minecraftautomation.blocks.entity;
 
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.FluidPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
-import teddy.minecraftautomation.utils.ImplementedFluidStorage;
 
-public class FluidPumpBlockEntity extends BlockEntity implements ImplementedFluidStorage {
+public class FluidPumpBlockEntity extends BlockEntityWithFluidStorage {
     private int flowPerTick;
     private int transferCooldown;
-    private int maxFluidCapacityMb;
     public int inducedPressure;
 
     public int cooldown = 0;
     public int directionIndex = 0;
 
-    public SingleVariantStorage<FluidVariant> fluidStorage;
-
     public FluidPumpBlockEntity(BlockPos blockPos, BlockState blockState, int inducedPressure, int flowPerTick, int maxFluidCapacityMb, int transferCooldown) {
-        super(ModBlockEntities.FLUID_PUMP_BE, blockPos, blockState);
+        super(ModBlockEntities.FLUID_PUMP_BE, blockPos, blockState, maxFluidCapacityMb);
 
         this.inducedPressure = inducedPressure;
         this.flowPerTick = flowPerTick;
-        this.maxFluidCapacityMb = maxFluidCapacityMb;
         this.transferCooldown = transferCooldown;
-
-        this.fluidStorage = initializeFluidStorage(maxFluidCapacityMb, this);
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState state, FluidPumpBlockEntity fluidPumpBlockEntity) {
@@ -81,6 +75,28 @@ public class FluidPumpBlockEntity extends BlockEntity implements ImplementedFlui
     }
 
     @Override
+    public void setChanged() {
+        super.setChanged();
+
+        if (this.getLevel() != null)
+            this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag nbt = new CompoundTag();
+
+        this.saveAdditional(nbt, provider);
+
+        return nbt;
+    }
+
+    @Override
     protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
         writeFluidStorageNbt(this.fluidStorage, nbt, provider);
 
@@ -88,7 +104,6 @@ public class FluidPumpBlockEntity extends BlockEntity implements ImplementedFlui
         nbt.putInt("transferCooldown", this.transferCooldown);
         nbt.putInt("directionIndex", this.directionIndex);
         nbt.putInt("flowPerTick", this.flowPerTick);
-        nbt.putInt("maxFluidCapacityMb", this.maxFluidCapacityMb);
         nbt.putInt("inducedPressure", this.inducedPressure);
 
         super.saveAdditional(nbt, provider);
@@ -98,12 +113,9 @@ public class FluidPumpBlockEntity extends BlockEntity implements ImplementedFlui
     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
         super.loadAdditional(nbt, provider);
 
-        this.fluidStorage = readFluidStorageNbt(nbt, provider, this);
-
         this.cooldown = nbt.getInt("cooldown");
         this.transferCooldown = nbt.getInt("transferCooldown");
         this.directionIndex = nbt.getInt("directionIndex");
-        this.maxFluidCapacityMb = nbt.getInt("maxFluidCapacityMb");
         this.flowPerTick = nbt.getInt("flowPerTick");
         this.inducedPressure = nbt.getInt("inducedPressure");
     }

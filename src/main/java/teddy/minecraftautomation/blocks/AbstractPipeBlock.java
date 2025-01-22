@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,22 +27,24 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.items.ModItems;
 import teddy.minecraftautomation.utils.OrientedContainer;
 import teddy.minecraftautomation.utils.Tooltip;
+import teddy.minecraftautomation.utils.WrenchableBlock;
 
-import javax.tools.Tool;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractPipeBlock extends BaseEntityBlock implements OrientedContainer {
+public abstract class AbstractPipeBlock extends BaseEntityBlock implements OrientedContainer, WrenchableBlock {
     final int maxPressure;
 
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
@@ -49,8 +53,10 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock implements Orien
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty UP = BlockStateProperties.UP;
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
+
     protected final Map<String, VoxelShape> SHAPES;
 
+    public static final Tooltip STATS_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "block_stats", "stats", "Stats:");
     public static final Tooltip MAX_PRESSURE_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "pipe", "max_pressure", "Max pressure: %spu") ;
 
     public AbstractPipeBlock(int maxPressure, Properties properties) {
@@ -64,13 +70,20 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock implements Orien
                 .setValue(SOUTH, false)
                 .setValue(WEST, false)
                 .setValue(UP, false)
-                .setValue(DOWN, false));
+                .setValue(DOWN, false)
+                .setValue(WRENCHED_NORTH, false)
+                .setValue(WRENCHED_EAST, false)
+                .setValue(WRENCHED_SOUTH, false)
+                .setValue(WRENCHED_WEST, false)
+                .setValue(WRENCHED_UP, false)
+                .setValue(WRENCHED_DOWN, false));
 
         this.SHAPES = createShapes();
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
+        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN,
+                WRENCHED_NORTH, WRENCHED_EAST, WRENCHED_SOUTH, WRENCHED_WEST, WRENCHED_UP, WRENCHED_DOWN);
     }
 
     protected Map<String, VoxelShape> createShapes() {
@@ -138,10 +151,11 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock implements Orien
     }
 
     abstract boolean canConnect(Level world, BlockPos pos, Direction direction);
+
     @Override
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
-        list.add(Component.translatable(MAX_PRESSURE_TOOLTIP.getTranslationKey(), this.maxPressure)
-                .withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(STATS_TOOLTIP.getTranslationKey()).withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(MAX_PRESSURE_TOOLTIP.getTranslationKey(), this.maxPressure).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     @Override
@@ -165,9 +179,33 @@ public abstract class AbstractPipeBlock extends BaseEntityBlock implements Orien
 
     @Override
     protected @NotNull BlockState updateShape(BlockState blockState, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos blockPos, Direction direction, BlockPos blockPos2, BlockState blockState2, RandomSource randomSource) {
-        return blockState.setValue(
-                getFacingPropertyFromDirection(direction),
-                canConnect((Level) levelReader, blockPos2, direction));
+        if (blockState.getBlock() instanceof WrenchableBlock && blockState.getValue(getWrenchedPropertyFromDirection(direction)))
+            return blockState;
+
+        return blockState.setValue(getFacingPropertyFromDirection(direction), canConnect((Level) levelReader, blockPos2, direction));
+    }
+
+    @Override
+    protected @NotNull InteractionResult useItemOn(
+            ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult
+    ) {
+        if (itemStack.getItem() == ModItems.WRENCH && !level.isClientSide) {
+            Direction clickDir = Direction.getApproximateNearest(player.getLookAngle()).getOpposite();
+            BooleanProperty facingProp = getFacingPropertyFromDirection(clickDir);
+            BooleanProperty wrenchedProp = getWrenchedPropertyFromDirection(clickDir);
+            BlockState newBlockState = blockState
+                    .setValue(facingProp, !blockState.getValue(facingProp))
+                    .setValue(wrenchedProp, !blockState.getValue(wrenchedProp));
+
+            level.setBlock(blockPos, newBlockState, 3);
+
+            if (!player.isCreative())
+                itemStack.setDamageValue(itemStack.getDamageValue() + 1);
+
+            return InteractionResult.SUCCESS;
+        }
+
+        return super.useItemOn(itemStack, blockState, level, blockPos, player, interactionHand, blockHitResult);
     }
 
     @Override

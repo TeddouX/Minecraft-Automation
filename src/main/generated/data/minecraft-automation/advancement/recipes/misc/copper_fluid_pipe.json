@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_item_joint": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft-automation:pipe_joint"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft-automation:copper_fluid_pipe"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_item_joint"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft-automation:copper_fluid_pipe"
+    ]
+  }
+}

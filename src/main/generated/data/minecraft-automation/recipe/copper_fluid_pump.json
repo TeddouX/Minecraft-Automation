@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:copper_ingot",
+    "G": "minecraft:glass",
+    "O": "minecraft-automation:pipe_joint",
+    "P": "minecraft-automation:copper_fluid_pipe"
+  },
+  "pattern": [
+    "O#O",
+    "GPG",
+    "O#O"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft-automation:copper_fluid_pump"
+  }
+}

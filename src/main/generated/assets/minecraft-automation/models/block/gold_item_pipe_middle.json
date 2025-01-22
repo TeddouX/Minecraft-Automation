@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft-automation:block/item_pipe_middle",
+  "textures": {
+    "texture": "minecraft:block/gold_block"
+  }
+}

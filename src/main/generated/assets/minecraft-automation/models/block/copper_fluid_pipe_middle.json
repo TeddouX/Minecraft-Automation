@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft-automation:block/fluid_pipe_middle",
+  "textures": {
+    "texture": "minecraft:block/copper_block"
+  }
+}

@@ -21,6 +21,7 @@ import teddy.minecraftautomation.blocks.ItemPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
 import teddy.minecraftautomation.utils.ImplementedInventory;
 
+// All credit goes to https://github.com/mestiez/unflavoured-pipes for the tick method logic
 public class ItemPipeBlockEntity extends BaseContainerBlockEntity implements ImplementedInventory {
     private NonNullList<ItemStack> items;
     private int maxPressure;
@@ -89,7 +90,7 @@ public class ItemPipeBlockEntity extends BaseContainerBlockEntity implements Imp
             BlockState relativeBlockState = level.getBlockState(pos.relative(dir));
             BlockEntity relativeBlockEntity = level.getBlockEntity(pos.relative(dir));
 
-            // If the other block is an item pump and the pipe is connected to its input
+            // If the other block is an item pump and the pipe is connected to its output
             if (relativeBlockState.getBlock() instanceof ItemPumpBlock itemPumpBlock
                     && state.getValue(ItemPipeBlock.getFacingPropertyFromDirection(dir))
                     && itemPumpBlock.getOutputDirections(relativeBlockState).contains(dir)) {

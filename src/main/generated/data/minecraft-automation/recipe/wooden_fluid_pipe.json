@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:oak_planks",
+    "G": "minecraft:glass",
+    "O": "minecraft-automation:pipe_joint"
+  },
+  "pattern": [
+    "O#O",
+    " G ",
+    "O#O"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft-automation:wooden_fluid_pipe"
+  }
+}

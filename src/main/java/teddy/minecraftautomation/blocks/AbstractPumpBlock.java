@@ -1,6 +1,7 @@
 package teddy.minecraftautomation.blocks;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.MinecraftAutomation;
 import teddy.minecraftautomation.utils.OrientedContainer;
+import teddy.minecraftautomation.utils.Tooltip;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +39,14 @@ public abstract class AbstractPumpBlock extends BaseEntityBlock implements Orien
     public static final BooleanProperty NEGATIVE_AXIS = BooleanProperty.create("negative_axis");
     private final Map<String, VoxelShape> SHAPES;
 
-    public AbstractPumpBlock(Properties properties) {
+    public final int inducedPressure;
+
+    public static final Tooltip INDUCED_PRESSURE_TOOLTIP = new Tooltip(MinecraftAutomation.MOD_ID, "pump", "induced_pressure", "Induced pressure: %spu");
+
+    public AbstractPumpBlock(int inducedPressure, Properties properties) {
         super(properties);
+
+        this.inducedPressure = inducedPressure;
 
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(AXIS, Direction.Axis.Y)
@@ -71,14 +80,23 @@ public abstract class AbstractPumpBlock extends BaseEntityBlock implements Orien
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
+        Direction.Axis axis = blockPlaceContext.getClickedFace().getAxis();
+        Direction axisPositive = axis.getPositive();
+
+        if (axis == Direction.Axis.X)
+            axisPositive = axis.getNegative();
+
         return this.defaultBlockState()
-                .setValue(AXIS, blockPlaceContext.getClickedFace().getAxis())
-                // If the block was placed in the negative axis
-                .setValue(NEGATIVE_AXIS, blockPlaceContext.getClickedFace().getAxis().getPositive() == blockPlaceContext.getClickedFace());
+                .setValue(AXIS, axis)
+                // If the block was placed in the positive axis
+                .setValue(NEGATIVE_AXIS, axisPositive == blockPlaceContext.getClickedFace());
     }
 
     @Override
-    public abstract void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag);
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
+        list.add(Component.translatable(AbstractPipeBlock.STATS_TOOLTIP.getTranslationKey()).withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(INDUCED_PRESSURE_TOOLTIP.getTranslationKey(), this.inducedPressure).withStyle(ChatFormatting.DARK_GRAY));
+    }
 
     @Override
     public @NotNull VoxelShape getInteractionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos) {

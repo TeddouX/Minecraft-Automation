@@ -2,13 +2,13 @@ package teddy.minecraftautomation.utils;
 
 public class Tooltip {
     private final String modId;
-    private final String path;
+    private final String blockPath;
     private final String tooltipName;
     private final String value;
 
-    public Tooltip(String modId, String path, String tooltipName, String value) {
+    public Tooltip(String modId, String blockPath, String tooltipName, String value) {
         this.modId = modId;
-        this.path = path;
+        this.blockPath = blockPath;
         this.tooltipName = tooltipName;
         this.value = value;
     }
@@ -18,6 +18,13 @@ public class Tooltip {
     }
 
     public String getTranslationKey() {
-        return "block." + this.modId + "." + this.path + ".tooltip." + this.tooltipName;
+        return "block." + this.modId + "." + this.blockPath + ".tooltip." + this.tooltipName;
+    }
+
+    public static float getSeconds(float ticks) {
+        float seconds = ticks / 20f;
+
+        // Round to .01
+        return ((float) Math.round(seconds * 100f)) / 100f;
     }
 }

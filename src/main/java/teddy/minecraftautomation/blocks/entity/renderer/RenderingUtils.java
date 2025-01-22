@@ -9,13 +9,15 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+// All credit goes to https://github.com/DaRealTurtyWurty/1.21-Tutorial-Mod for the fluid rendering
+// (got it from a tutorial on his YouTube channel https://www.youtube.com/@TurtyWurty)
 public class RenderingUtils {
     public static float pixels(float n) {
         return n / 16f;
     }
 
-    public static void renderFluidVariant(FluidVariant fluidVariant, float radius, float heightOffset, BlockEntity blockEntity, MultiBufferSource multiBufferSource, PoseStack matrices, int light, int overlay) {
-        float height = heightOffset + radius * 2f;
+    public static void renderFluidVariant(FluidVariant fluidVariant, float fluidHeight, float radius, float heightOffset, BlockEntity blockEntity, MultiBufferSource multiBufferSource, PoseStack matrices, int light, int overlay, boolean renderBottom) {
+        float height = (heightOffset + radius * 2f) - (radius * 2f - fluidHeight);
         float offset = 0.001f;
         float radiusPlus = pixels(8f) + radius;
         float radiusMinus = pixels(8f) - radius;
@@ -25,10 +27,10 @@ public class RenderingUtils {
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityTranslucent(sprite.atlasLocation()));
         PoseStack.Pose pose = matrices.last();
 
-        float minU = sprite.getU(pixels(radiusMinus));
+        float minU = sprite.getU(radiusMinus);
         float minV = sprite.getV(heightOffset);
 
-        float maxU = sprite.getU(pixels(radiusPlus));
+        float maxU = sprite.getU(radiusPlus);
         float maxV = sprite.getV(height);
 
         // North
@@ -67,10 +69,11 @@ public class RenderingUtils {
                 minU, minV, maxU, maxV, color, light, overlay);
 
         // Down
-        RenderingUtils.drawVerticalQuad(vertexConsumer, pose,
-                radiusMinus, heightOffset + offset, radiusMinus,
-                radiusPlus, radiusPlus,
-                minU, minV, maxU, maxV, color, light, overlay);
+        if (renderBottom)
+            RenderingUtils.drawVerticalQuad(vertexConsumer, pose,
+                    radiusMinus, heightOffset + offset, radiusMinus,
+                    radiusPlus, radiusPlus,
+                    minU, minV, maxU, maxV, color, light, overlay);
     }
 
     public static void drawHorizontalQuad(VertexConsumer vertexConsumer,

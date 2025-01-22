@@ -1,19 +1,36 @@
-package teddy.minecraftautomation.utils;
+package teddy.minecraftautomation.blocks.entity;
 
 import com.mojang.serialization.DataResult;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import teddy.minecraftautomation.MinecraftAutomation;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
-public interface ImplementedFluidStorage {
-    default SingleVariantStorage<FluidVariant> initializeFluidStorage(int maxFluidCapacityMb, BlockEntity blockEntity) {
+public abstract class BlockEntityWithFluidStorage extends BlockEntity {
+    public SingleVariantStorage<FluidVariant> fluidStorage;
+    private int maxFluidCapacityMb;
+
+    public BlockEntityWithFluidStorage(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState, int maxFluidCapacityMb) {
+        super(blockEntityType, blockPos, blockState);
+
+        this.maxFluidCapacityMb = maxFluidCapacityMb;
+        this.fluidStorage = initializeFluidStorage(maxFluidCapacityMb, this);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+    }
+
+    private SingleVariantStorage<FluidVariant> initializeFluidStorage(int maxFluidCapacityMb, BlockEntity blockEntity) {
         return new SingleVariantStorage<>() {
             @Override
             protected FluidVariant getBlankVariant() {
@@ -32,7 +49,7 @@ public interface ImplementedFluidStorage {
         };
     }
 
-    default void writeFluidStorageNbt(SingleVariantStorage<FluidVariant> fluidStorage, CompoundTag nbt, HolderLookup.Provider provider) {
+    void writeFluidStorageNbt(SingleVariantStorage<FluidVariant> fluidStorage, CompoundTag nbt, HolderLookup.Provider provider) {
         RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
 
         // Save all fields
@@ -41,7 +58,7 @@ public interface ImplementedFluidStorage {
         nbt.putLong("capacity", fluidStorage.getCapacity());
     }
 
-    default SingleVariantStorage<FluidVariant> readFluidStorageNbt(CompoundTag nbt, HolderLookup.Provider provider, BlockEntity blockEntity) {
+    SingleVariantStorage<FluidVariant> readFluidStorageNbt(CompoundTag nbt, HolderLookup.Provider provider, BlockEntity blockEntity) {
         // Used this method instead of the SingleVariantStorage.writeNbt() because it doesn't store and load the capacity
         RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
         DataResult<FluidVariant> result = FluidVariant.CODEC.parse(ops, nbt.getCompound("variant"));
@@ -76,5 +93,25 @@ public interface ImplementedFluidStorage {
         fluidStorage.variant = variant;
 
         return fluidStorage;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        // Store the fluidStorage
+        writeFluidStorageNbt(this.fluidStorage, nbt, provider);
+
+        nbt.putInt("maxFluidCapacityMb", maxFluidCapacityMb);
+
+        super.saveAdditional(nbt, provider);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadAdditional(nbt, provider);
+
+        // Load the fluidStorage
+        this.fluidStorage = readFluidStorageNbt(nbt, provider, this);
+
+        this.maxFluidCapacityMb = nbt.getInt("maxFluidCapacityMb");
     }
 }

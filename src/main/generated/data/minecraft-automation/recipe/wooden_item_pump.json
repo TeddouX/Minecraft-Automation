@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:oak_planks",
+    "C": "minecraft:chest",
+    "O": "minecraft-automation:pipe_joint",
+    "P": "minecraft-automation:wooden_item_pipe"
+  },
+  "pattern": [
+    "O#O",
+    "CPC",
+    "O#O"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft-automation:wooden_item_pump"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:gold_ingot",
+    "G": "minecraft:glass",
+    "O": "minecraft-automation:pipe_joint"
+  },
+  "pattern": [
+    "O#O",
+    " G ",
+    "O#O"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft-automation:gold_fluid_pipe"
+  }
+}

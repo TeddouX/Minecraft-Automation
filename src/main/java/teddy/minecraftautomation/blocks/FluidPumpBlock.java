@@ -1,6 +1,7 @@
 package teddy.minecraftautomation.blocks;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -15,8 +16,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.MinecraftAutomation;
 import teddy.minecraftautomation.blocks.entity.FluidPumpBlockEntity;
 import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
+import teddy.minecraftautomation.utils.Tooltip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,21 +27,23 @@ import java.util.List;
 public class FluidPumpBlock extends AbstractPumpBlock {
     private final int transferCooldown;
     private final int flowPerTick;
-    private final int inducedPressure;
     private final int maxFluidCapacityMb;
 
     public FluidPumpBlock(int inducedPressure, int flowPerTick, int maxFluidCapacityMb, int transferCooldown, Properties properties) {
-        super(properties);
+        super(inducedPressure, properties);
 
         this.transferCooldown = transferCooldown;
         this.flowPerTick = flowPerTick;
-        this.inducedPressure = inducedPressure;
         this.maxFluidCapacityMb = maxFluidCapacityMb;
     }
 
     @Override
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
 
+        list.add(Component.translatable(FluidPipeBlock.MB_PER_TRANSFER_TOOLTIP.getTranslationKey(), this.flowPerTick).withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(FluidPipeBlock.FLUID_CAPACITY_TOOLTIP.getTranslationKey(), this.maxFluidCapacityMb).withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable(ItemPipeBlock.TRANSFER_COOLDOW_TOOLTIP.getTranslationKey(), Tooltip.getSeconds(this.transferCooldown)).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     @Override

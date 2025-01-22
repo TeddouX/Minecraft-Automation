@@ -23,6 +23,6 @@ public class FluidPipeBlockEntityRenderer implements BlockEntityRenderer<FluidPi
         if (fluidTank.isResourceBlank() || fluidTank.amount <= 0)
             return;
 
-        RenderingUtils.renderFluidVariant(fluidTank.variant, radius, heightOffset, blockEntity, multiBufferSource, matrices, light, overlay);
+        RenderingUtils.renderFluidVariant(fluidTank.variant, radius * 2, radius, heightOffset, blockEntity, multiBufferSource, matrices, light, overlay, true);
     }
 }

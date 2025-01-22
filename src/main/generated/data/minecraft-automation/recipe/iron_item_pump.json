@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:iron_ingot",
+    "C": "minecraft:chest",
+    "O": "minecraft-automation:pipe_joint",
+    "P": "minecraft-automation:iron_item_pipe"
+  },
+  "pattern": [
+    "O#O",
+    "CPC",
+    "O#O"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft-automation:iron_item_pump"
+  }
+}

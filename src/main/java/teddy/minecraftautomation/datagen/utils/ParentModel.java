@@ -1,4 +1,4 @@
-package teddy.minecraftautomation.datagen;
+package teddy.minecraftautomation.datagen.utils;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.data.models.model.ModelInstance;

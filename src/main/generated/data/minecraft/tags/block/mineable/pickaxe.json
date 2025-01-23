@@ -1,0 +1,9 @@
+{
+  "values": [
+    "#minecraft-automation:item_pipes",
+    "#minecraft-automation:fluid_pipes",
+    "#minecraft-automation:item_pumps",
+    "#minecraft-automation:fluid_pumps",
+    "#minecraft-automation:fluid_tanks"
+  ]
+}

@@ -14,10 +14,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import teddy.minecraftautomation.blocks.AbstractPumpBlock;
 import teddy.minecraftautomation.blocks.ModBlocks;
+import teddy.minecraftautomation.datagen.utils.ParentModel;
 import teddy.minecraftautomation.items.ModItems;
 
-public class ModModelProvider extends FabricModelProvider {
-    public ModModelProvider(FabricDataOutput output) {
+public class ModModelsProvider extends FabricModelProvider {
+    public ModModelsProvider(FabricDataOutput output) {
         super(output);
     }
 
@@ -186,31 +187,31 @@ public class ModModelProvider extends FabricModelProvider {
             this.blockModelGenerators = blockModelGenerators;
         }
 
-        public ModModelProvider.BlockFamilyProvider itemPipe(Block block) {
+        public ModModelsProvider.BlockFamilyProvider itemPipe(Block block) {
             BlockStateGenerator blockState = createItemPipe(this.blockModelGenerators, block, this.parentBlock);
             this.blockModelGenerators.blockStateOutput.accept(blockState);
             return this;
         }
 
-        public ModModelProvider.BlockFamilyProvider fluidPipe(Block block) {
+        public ModModelsProvider.BlockFamilyProvider fluidPipe(Block block) {
             BlockStateGenerator blockState = createFluidPipe(this.blockModelGenerators, block, this.parentBlock);
             this.blockModelGenerators.blockStateOutput.accept(blockState);
             return this;
         }
 
-        public ModModelProvider.BlockFamilyProvider itemPump(Block block) {
+        public ModModelsProvider.BlockFamilyProvider itemPump(Block block) {
             BlockStateGenerator blockState = createItemPump(this.blockModelGenerators, block, this.parentBlock);
             this.blockModelGenerators.blockStateOutput.accept(blockState);
             return this;
         }
 
-        public ModModelProvider.BlockFamilyProvider fluidPump(Block block) {
+        public ModModelsProvider.BlockFamilyProvider fluidPump(Block block) {
             BlockStateGenerator blockState = createFluidPump(this.blockModelGenerators, block, this.parentBlock);
             this.blockModelGenerators.blockStateOutput.accept(blockState);
             return this;
         }
 
-        public ModModelProvider.BlockFamilyProvider fluidTank(Block block) {
+        public ModModelsProvider.BlockFamilyProvider fluidTank(Block block) {
             BlockStateGenerator blockState = createFluidTank(this.blockModelGenerators, block, this.parentBlock);
             this.blockModelGenerators.blockStateOutput.accept(blockState);
             return this;

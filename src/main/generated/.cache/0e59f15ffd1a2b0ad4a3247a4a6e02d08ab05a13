@@ -1,0 +1,7 @@
+// 1.21.4	-999999999-01-01T00:00:00	Minecraft Automation/Tags for minecraft:block
+7fae16bf6974398adc2c9cb9be8270b028caacc4 data/minecraft-automation/tags/block/fluid_pipes.json
+ad64860e8bf3a70ec9047bd72aac3c9d95b4080a data/minecraft-automation/tags/block/fluid_pumps.json
+fbba494fd7de87ae54fc553d5559f75d381cf820 data/minecraft-automation/tags/block/fluid_tanks.json
+e0d144d45a55d05d49cac1b538cb0c2a3550b244 data/minecraft-automation/tags/block/item_pipes.json
+240c04499bb829cf9aba7d9712ef814681f9bcee data/minecraft-automation/tags/block/item_pumps.json
+153db5ddabf0c9c25ee08f6d05919072f066d30b data/minecraft/tags/block/mineable/pickaxe.json

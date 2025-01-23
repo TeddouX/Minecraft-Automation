@@ -1,0 +1,10 @@
+{
+  "values": [
+    "minecraft-automation:wooden_fluid_tank",
+    "minecraft-automation:copper_fluid_tank",
+    "minecraft-automation:iron_fluid_tank",
+    "minecraft-automation:gold_fluid_tank",
+    "minecraft-automation:diamond_fluid_tank",
+    "minecraft-automation:netherite_fluid_tank"
+  ]
+}

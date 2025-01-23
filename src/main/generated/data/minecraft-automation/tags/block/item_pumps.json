@@ -1,0 +1,10 @@
+{
+  "values": [
+    "minecraft-automation:wooden_item_pump",
+    "minecraft-automation:copper_item_pump",
+    "minecraft-automation:iron_item_pump",
+    "minecraft-automation:gold_item_pump",
+    "minecraft-automation:diamond_item_pump",
+    "minecraft-automation:netherite_item_pump"
+  ]
+}

@@ -2,16 +2,22 @@ package teddy.minecraftautomation.datagen;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.blockstates.*;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureSlot;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.data.BlockStateModelGenerator;
+import net.minecraft.client.data.BlockStateSupplier;
+import net.minecraft.client.data.BlockStateVariant;
+import net.minecraft.client.data.BlockStateVariantMap;
+import net.minecraft.client.data.ItemModelGenerator;
+import net.minecraft.client.data.Models;
+import net.minecraft.client.data.MultipartBlockStateSupplier;
+import net.minecraft.client.data.TextureKey;
+import net.minecraft.client.data.VariantSettings;
+import net.minecraft.client.data.VariantsBlockStateSupplier;
+import net.minecraft.client.data.When;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import teddy.minecraftautomation.blocks.AbstractPumpBlock;
 import teddy.minecraftautomation.blocks.ModBlocks;
 import teddy.minecraftautomation.datagen.utils.ParentModel;
@@ -22,116 +28,116 @@ public class ModModelsProvider extends FabricModelProvider {
         super(output);
     }
 
-    BlockStateGenerator createPipeBlockState(Block block, ResourceLocation middle, ResourceLocation half) {
-        return MultiPartGenerator.multiPart(block)
-                .with(Variant.variant().with(VariantProperties.MODEL, middle))
+    BlockStateSupplier createPipeBlockState(Block block, Identifier middle, Identifier half) {
+        return MultipartBlockStateSupplier.create(block)
+                .with(BlockStateVariant.create().put(VariantSettings.MODEL, middle))
                 .with(
-                        Condition.condition().term(BlockStateProperties.NORTH, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
+                        When.create().set(Properties.NORTH, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
                 ).with(
-                        Condition.condition().term(BlockStateProperties.EAST, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
-                                .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                        When.create().set(Properties.EAST, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
+                                .put(VariantSettings.Y, VariantSettings.Rotation.R90)
                 ).with(
-                        Condition.condition().term(BlockStateProperties.SOUTH, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
-                                .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                        When.create().set(Properties.SOUTH, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
+                                .put(VariantSettings.Y, VariantSettings.Rotation.R180)
                 ).with(
-                        Condition.condition().term(BlockStateProperties.WEST, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
-                                .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                        When.create().set(Properties.WEST, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
+                                .put(VariantSettings.Y, VariantSettings.Rotation.R270)
                 ).with(
-                        Condition.condition().term(BlockStateProperties.UP, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
-                                .with(VariantProperties.X_ROT, VariantProperties.Rotation.R270)
+                        When.create().set(Properties.UP, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
+                                .put(VariantSettings.X, VariantSettings.Rotation.R270)
                 ).with(
-                        Condition.condition().term(BlockStateProperties.DOWN, true),
-                        Variant.variant().with(VariantProperties.MODEL, half)
-                                .with(VariantProperties.UV_LOCK, false)
-                                .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90)
+                        When.create().set(Properties.DOWN, true),
+                        BlockStateVariant.create().put(VariantSettings.MODEL, half)
+                                .put(VariantSettings.UVLOCK, false)
+                                .put(VariantSettings.X, VariantSettings.Rotation.R90)
                 );
     }
 
-    BlockStateGenerator createPumpBlockState(Block block, ResourceLocation pumpModel) {
-        return MultiVariantGenerator.multiVariant(block)
-                .with(
-                        PropertyDispatch.properties(AbstractPumpBlock.AXIS, AbstractPumpBlock.NEGATIVE_AXIS)
-                                .select(Direction.Axis.Z, false, Variant.variant().with(VariantProperties.MODEL, pumpModel))
-                                .select(Direction.Axis.Z, true, Variant.variant().with(VariantProperties.MODEL, pumpModel)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180))
-                                .select(Direction.Axis.X, false, Variant.variant().with(VariantProperties.MODEL, pumpModel)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90))
-                                .select(Direction.Axis.X, true, Variant.variant().with(VariantProperties.MODEL, pumpModel)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270))
-                                .select(Direction.Axis.Y, false, Variant.variant().with(VariantProperties.MODEL, pumpModel)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
-                                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90))
-                                .select(Direction.Axis.Y, true, Variant.variant().with(VariantProperties.MODEL, pumpModel)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
-                                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R270))
+    BlockStateSupplier createPumpBlockState(Block block, Identifier pumpModel) {
+        return VariantsBlockStateSupplier.create(block)
+                .coordinate(
+                        BlockStateVariantMap.create(AbstractPumpBlock.AXIS, AbstractPumpBlock.NEGATIVE_AXIS)
+                                .register(Direction.Axis.Z, false, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel))
+                                .register(Direction.Axis.Z, true, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R180))
+                                .register(Direction.Axis.X, false, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R90))
+                                .register(Direction.Axis.X, true, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R270))
+                                .register(Direction.Axis.Y, false, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R90)
+                                        .put(VariantSettings.X, VariantSettings.Rotation.R90))
+                                .register(Direction.Axis.Y, true, BlockStateVariant.create().put(VariantSettings.MODEL, pumpModel)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R90)
+                                        .put(VariantSettings.X, VariantSettings.Rotation.R270))
                 );
     }
 
-    BlockStateGenerator createPump(String pumpType, BlockModelGenerators blockModelGenerators, Block block, Block parentBlock, boolean cutout) {
-        ResourceLocation pump = ParentModel.create(pumpType + "_pump", "", TextureSlot.TEXTURE, block, parentBlock, blockModelGenerators.modelOutput);
+    BlockStateSupplier createPump(String pumpType, BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock, boolean cutout) {
+        Identifier pump = ParentModel.create(pumpType + "_pump", "", TextureKey.TEXTURE, block, parentBlock, blockModelGenerators.modelCollector);
 
-        BlockStateGenerator blockState = createPumpBlockState(block, pump);
+        BlockStateSupplier blockState = createPumpBlockState(block, pump);
 
-        blockModelGenerators.registerSimpleItemModel(block, pump);
+        blockModelGenerators.registerParentedItemModel(block, pump);
 
         return blockState;
     }
 
-    BlockStateGenerator createItemPump(BlockModelGenerators blockModelGenerators, Block block, Block parentBlock) {
+    BlockStateSupplier createItemPump(BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock) {
         return createPump("item", blockModelGenerators, block, parentBlock, false);
     }
 
-    BlockStateGenerator createFluidPump(BlockModelGenerators blockModelGenerators, Block block, Block parentBlock) {
+    BlockStateSupplier createFluidPump(BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock) {
         return createPump("fluid", blockModelGenerators, block, parentBlock, true);
     }
 
-    BlockStateGenerator createFluidTank(BlockModelGenerators blockModelGenerators, Block block, Block parentBlock) {
-        ResourceLocation resourceLocation = ParentModel.create("fluid_tank", "", TextureSlot.TEXTURE, block, parentBlock, blockModelGenerators.modelOutput);
+    BlockStateSupplier createFluidTank(BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock) {
+        Identifier resourceLocation = ParentModel.create("fluid_tank", "", TextureKey.TEXTURE, block, parentBlock, blockModelGenerators.modelCollector);
 
-        BlockStateGenerator blockState = MultiVariantGenerator.multiVariant(block, Variant.variant()
-                .with(VariantProperties.MODEL, resourceLocation)
-                .with(VariantProperties.UV_LOCK, false));
+        BlockStateSupplier blockState = VariantsBlockStateSupplier.create(block, BlockStateVariant.create()
+                .put(VariantSettings.MODEL, resourceLocation)
+                .put(VariantSettings.UVLOCK, false));
 
-        blockModelGenerators.registerSimpleItemModel(block, resourceLocation);
+        blockModelGenerators.registerParentedItemModel(block, resourceLocation);
 
         return blockState;
     }
 
-    BlockStateGenerator createPipe(String pipeType, BlockModelGenerators blockModelGenerators, Block block, Block parentBlock, boolean cutout)  {
+    BlockStateSupplier createPipe(String pipeType, BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock, boolean cutout)  {
         // Create models that inherit from the parent models
-        ResourceLocation pipeMiddle = ParentModel.create( pipeType + "_pipe_middle", "_middle", TextureSlot.TEXTURE, block, parentBlock, blockModelGenerators.modelOutput);
-        ResourceLocation pipeHalf = ParentModel.create(pipeType + "_pipe_half", "_half", TextureSlot.TEXTURE, block, parentBlock, blockModelGenerators.modelOutput);
-        ResourceLocation pipeInventory = ParentModel.create(pipeType + "_pipe_inventory", "_inventory", TextureSlot.TEXTURE, block, parentBlock, blockModelGenerators.modelOutput);
+        Identifier pipeMiddle = ParentModel.create( pipeType + "_pipe_middle", "_middle", TextureKey.TEXTURE, block, parentBlock, blockModelGenerators.modelCollector);
+        Identifier pipeHalf = ParentModel.create(pipeType + "_pipe_half", "_half", TextureKey.TEXTURE, block, parentBlock, blockModelGenerators.modelCollector);
+        Identifier pipeInventory = ParentModel.create(pipeType + "_pipe_inventory", "_inventory", TextureKey.TEXTURE, block, parentBlock, blockModelGenerators.modelCollector);
 
         // Create the item pipe block state
-        BlockStateGenerator blockState = createPipeBlockState(block, pipeMiddle, pipeHalf);
+        BlockStateSupplier blockState = createPipeBlockState(block, pipeMiddle, pipeHalf);
 
         // Create the block's item model
-        blockModelGenerators.registerSimpleItemModel(block, pipeInventory);
+        blockModelGenerators.registerParentedItemModel(block, pipeInventory);
 
         return blockState;
     }
 
-    BlockStateGenerator createItemPipe(BlockModelGenerators blockModelGenerators, Block block, Block parentBlock) {
+    BlockStateSupplier createItemPipe(BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock) {
         return createPipe("item", blockModelGenerators, block, parentBlock, false);
     }
 
-    BlockStateGenerator createFluidPipe(BlockModelGenerators blockModelGenerators, Block block, Block parentBlock) {
+    BlockStateSupplier createFluidPipe(BlockStateModelGenerator blockModelGenerators, Block block, Block parentBlock) {
         return createPipe("fluid", blockModelGenerators, block, parentBlock, true);
     }
 
     @Override
-    public void generateBlockStateModels(BlockModelGenerators blockModelGenerators) {
+    public void generateBlockStateModels(BlockStateModelGenerator blockModelGenerators) {
         new BlockFamilyProvider(Blocks.OAK_PLANKS, blockModelGenerators)
                 .itemPipe(ModBlocks.WOODEN_ITEM_PIPE)
                 .fluidPipe(ModBlocks.WOODEN_FLUID_PIPE)
@@ -171,49 +177,49 @@ public class ModModelsProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateItemModels(ItemModelGenerators itemModelGenerators) {
-        itemModelGenerators.declareCustomModelItem(ModItems.PIPE_JOINT);
+    public void generateItemModels(ItemModelGenerator itemModelGenerators) {
+        itemModelGenerators.register(ModItems.PIPE_JOINT);
 
-        itemModelGenerators.generateFlatItem(ModItems.WRENCH, ModelTemplates.FLAT_ITEM);
+        itemModelGenerators.register(ModItems.WRENCH, Models.GENERATED);
     }
 
 
     public class BlockFamilyProvider {
         private final Block parentBlock;
-        private final BlockModelGenerators blockModelGenerators;
+        private final BlockStateModelGenerator blockModelGenerators;
 
-        public BlockFamilyProvider(Block parentBlock, BlockModelGenerators blockModelGenerators) {
+        public BlockFamilyProvider(Block parentBlock, BlockStateModelGenerator blockModelGenerators) {
             this.parentBlock = parentBlock;
             this.blockModelGenerators = blockModelGenerators;
         }
 
         public ModModelsProvider.BlockFamilyProvider itemPipe(Block block) {
-            BlockStateGenerator blockState = createItemPipe(this.blockModelGenerators, block, this.parentBlock);
-            this.blockModelGenerators.blockStateOutput.accept(blockState);
+            BlockStateSupplier blockState = createItemPipe(this.blockModelGenerators, block, this.parentBlock);
+            this.blockModelGenerators.blockStateCollector.accept(blockState);
             return this;
         }
 
         public ModModelsProvider.BlockFamilyProvider fluidPipe(Block block) {
-            BlockStateGenerator blockState = createFluidPipe(this.blockModelGenerators, block, this.parentBlock);
-            this.blockModelGenerators.blockStateOutput.accept(blockState);
+            BlockStateSupplier blockState = createFluidPipe(this.blockModelGenerators, block, this.parentBlock);
+            this.blockModelGenerators.blockStateCollector.accept(blockState);
             return this;
         }
 
         public ModModelsProvider.BlockFamilyProvider itemPump(Block block) {
-            BlockStateGenerator blockState = createItemPump(this.blockModelGenerators, block, this.parentBlock);
-            this.blockModelGenerators.blockStateOutput.accept(blockState);
+            BlockStateSupplier blockState = createItemPump(this.blockModelGenerators, block, this.parentBlock);
+            this.blockModelGenerators.blockStateCollector.accept(blockState);
             return this;
         }
 
         public ModModelsProvider.BlockFamilyProvider fluidPump(Block block) {
-            BlockStateGenerator blockState = createFluidPump(this.blockModelGenerators, block, this.parentBlock);
-            this.blockModelGenerators.blockStateOutput.accept(blockState);
+            BlockStateSupplier blockState = createFluidPump(this.blockModelGenerators, block, this.parentBlock);
+            this.blockModelGenerators.blockStateCollector.accept(blockState);
             return this;
         }
 
         public ModModelsProvider.BlockFamilyProvider fluidTank(Block block) {
-            BlockStateGenerator blockState = createFluidTank(this.blockModelGenerators, block, this.parentBlock);
-            this.blockModelGenerators.blockStateOutput.accept(blockState);
+            BlockStateSupplier blockState = createFluidTank(this.blockModelGenerators, block, this.parentBlock);
+            this.blockModelGenerators.blockStateCollector.accept(blockState);
             return this;
         }
     }

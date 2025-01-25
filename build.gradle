@@ -25,7 +25,7 @@ modrinth {
 	versionType = 'alpha'
 	versionNumber = 'Alpha-1.0'
 	versionName = 'First release'
-	changelog = 'First release'
+	changelog = ''
 	uploadFile = remapJar
 	gameVersions = ['1.20.4']
 	loaders = ['fabric']
@@ -34,7 +34,7 @@ modrinth {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.

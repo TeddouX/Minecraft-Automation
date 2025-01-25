@@ -9,7 +9,7 @@ import teddy.minecraftautomation.MinecraftAutomation;
 
 @Mixin(MinecraftServer.class)
 public class ModMixin {
-	@Inject(at = @At("HEAD"), method = "loadLevel")
+	@Inject(at = @At("HEAD"), method = "loadWorld")
 	private void init(CallbackInfo info) {
 		MinecraftAutomation.LOGGER.info("Hello from the ModMixin");
 	}

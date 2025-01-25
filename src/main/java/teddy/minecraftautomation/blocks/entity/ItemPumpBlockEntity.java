@@ -1,26 +1,26 @@
 package teddy.minecraftautomation.blocks.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.LockableContainerBlockEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.ItemPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
 import teddy.minecraftautomation.utils.ImplementedInventory;
 
-public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements ImplementedInventory {
-    private NonNullList<ItemStack> items;
+public class ItemPumpBlockEntity extends LockableContainerBlockEntity implements ImplementedInventory {
+    private DefaultedList<ItemStack> items;
     private int itemsPerTransfer;
     private int transferCooldown;
     public int inducedPressure;
@@ -34,11 +34,11 @@ public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements Imp
         this.itemsPerTransfer = itemsPerTransfer;
         this.transferCooldown = transferCooldown;
 
-        this.items = NonNullList.withSize(1, ItemStack.EMPTY);
+        this.items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     }
 
-    public static void tick(Level level, BlockPos blockPos, BlockState state, ItemPumpBlockEntity itemPumpBlockEntity) {
-        if (level.isClientSide() || !(level instanceof ServerLevel serverLevel))
+    public static void tick(World level, BlockPos blockPos, BlockState state, ItemPumpBlockEntity itemPumpBlockEntity) {
+        if (level.isClient() || !(level instanceof ServerWorld serverLevel))
             return;
 
         // Only transfer items when the cooldown reaches 0
@@ -82,9 +82,9 @@ public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements Imp
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
         // Save the inventory
-        ContainerHelper.saveAllItems(nbt, this.items, provider);
+        Inventories.writeNbt(nbt, this.items, provider);
 
         nbt.putInt("timer", this.cooldown);
         nbt.putInt("directionIndex", this.directionIndex);
@@ -92,15 +92,15 @@ public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements Imp
         nbt.putInt("transferCooldown", this.transferCooldown);
         nbt.putInt("inducedPressure", this.inducedPressure);
 
-        super.saveAdditional(nbt, provider);
+        super.writeNbt(nbt, provider);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.loadAdditional(nbt, provider);
+    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
+        super.readNbt(nbt, provider);
 
-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(nbt, this.items, provider); // Load the inventory
+        this.items = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        Inventories.readNbt(nbt, this.items, provider); // Load the inventory
 
         this.cooldown = nbt.getInt("timer");
         this.directionIndex = nbt.getInt("directionIndex");
@@ -110,22 +110,27 @@ public class ItemPumpBlockEntity extends BaseContainerBlockEntity implements Imp
     }
 
     @Override
-    public @NotNull NonNullList<ItemStack> getItems() {
+    public @NotNull DefaultedList<ItemStack> getHeldStacks() {
         return items;
     }
 
     @Override
-    protected void setItems(NonNullList<ItemStack> items) {
+    protected void setHeldStacks(DefaultedList<ItemStack> items) {
         this.items = items;
     }
 
     @Override
-    protected @NotNull Component getDefaultName() {
-        return Component.empty();
+    protected @NotNull Text getContainerName() {
+        return Text.empty();
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int i, Inventory inventory) {
+    protected ScreenHandler createScreenHandler(int i, PlayerInventory inventory) {
         return null;
+    }
+
+    @Override
+    public DefaultedList<ItemStack> getItems() {
+        return this.items;
     }
 }

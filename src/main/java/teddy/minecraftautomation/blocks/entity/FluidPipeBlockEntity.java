@@ -1,21 +1,23 @@
 package teddy.minecraftautomation.blocks.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.AbstractPipeBlock;
 import teddy.minecraftautomation.blocks.FluidPipeBlock;
 import teddy.minecraftautomation.blocks.FluidPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
+
+import java.util.ArrayList;
 
 public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
     private int maxPressure;
@@ -33,8 +35,8 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
         this.transferCooldown = transferCooldown;
     }
 
-    public static void tick(Level level, BlockPos blockPos, BlockState state, FluidPipeBlockEntity fluidPipeBlockEntity) {
-        if (level.isClientSide() || !(level instanceof ServerLevel serverLevel))
+    public static void tick(World level, BlockPos blockPos, BlockState state, FluidPipeBlockEntity fluidPipeBlockEntity) {
+        if (level.isClient() || !(level instanceof ServerWorld serverLevel))
             return;
 
         // Update pressure and clamp it to the maxPressure
@@ -49,14 +51,17 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
         else
             return;
 
-        Direction[] directions = Direction.values();
-        for (int i = 0; i < directions.length; i++) {
+        ArrayList<Direction> directions = AbstractPipeBlock.getConnectionsFromBlockState(state);
+
+        if (directions == null) return;
+
+        for (int i = 0; i < directions.size(); i++) {
             // Used so that it doesn't check the same direction two times in a row if it has other connections
             fluidPipeBlockEntity.directionIndex++;
-            fluidPipeBlockEntity.directionIndex %= directions.length;
+            fluidPipeBlockEntity.directionIndex %= directions.size();
 
             boolean success = ContainerUtils.FluidContainer.handleDirection(
-                    directions[fluidPipeBlockEntity.directionIndex],
+                    directions.get(fluidPipeBlockEntity.directionIndex),
                     serverLevel,
                     blockPos,
                     state,
@@ -69,7 +74,7 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
         }
     }
 
-    static int getPressureAmountForBlock(Level level, BlockState state, BlockPos pos) {
+    static int getPressureAmountForBlock(World level, BlockState state, BlockPos pos) {
         Direction[] directions = Direction.values();
         BlockEntity blockEntity = level.getBlockEntity(pos);
 
@@ -79,12 +84,12 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
 
         int maxPressure = 0;
         for (Direction dir : directions) {
-            BlockState relativeBlockState = level.getBlockState(pos.relative(dir));
-            BlockEntity relativeBlockEntity = level.getBlockEntity(pos.relative(dir));
+            BlockState relativeBlockState = level.getBlockState(pos.offset(dir));
+            BlockEntity relativeBlockEntity = level.getBlockEntity(pos.offset(dir));
 
             // If the other block is an item pump and the pipe is connected to its output
             if (relativeBlockState.getBlock() instanceof FluidPumpBlock fluidPumpBlock
-                    && state.getValue(AbstractPipeBlock.getFacingPropertyFromDirection(dir))
+                    && state.get(AbstractPipeBlock.getFacingPropertyFromDirection(dir))
                     && fluidPumpBlock.getOutputDirections(relativeBlockState).contains(dir)) {
 
                 if (!(relativeBlockEntity instanceof FluidPumpBlockEntity fluidPumpBlockEntity))
@@ -103,29 +108,29 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
     }
 
     @Override
-    public void setChanged() {
-        super.setChanged();
+    public void markDirty() {
+        super.markDirty();
 
-        if (this.getLevel() != null)
-            this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        if (this.getWorld() != null)
+            this.getWorld().updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), 3);
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag nbt = new CompoundTag();
+    public @NotNull NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup provider) {
+        NbtCompound nbt = new NbtCompound();
 
-        this.saveAdditional(nbt, provider);
+        this.writeNbt(nbt, provider);
 
         return nbt;
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
         nbt.putInt("maxPressure", maxPressure);
         nbt.putInt("flowPerTick", flowPerTick);
         nbt.putInt("cooldown", cooldown);
@@ -133,12 +138,12 @@ public class FluidPipeBlockEntity extends BlockEntityWithFluidStorage {
         nbt.putInt("directionIndex", directionIndex);
         nbt.putInt("pressure", pressure);
 
-        super.saveAdditional(nbt, provider);
+        super.writeNbt(nbt, provider);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.loadAdditional(nbt, provider);
+    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
+        super.readNbt(nbt, provider);
 
         this.maxPressure = nbt.getInt("maxPressure");
         this.flowPerTick = nbt.getInt("flowPerTick");

@@ -8,35 +8,33 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import teddy.minecraftautomation.MinecraftAutomation;
-import teddy.minecraftautomation.MinecraftAutomationClient;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import teddy.minecraftautomation.blocks.*;
 import teddy.minecraftautomation.blocks.entity.FluidPipeBlockEntity;
 import teddy.minecraftautomation.blocks.entity.ItemPipeBlockEntity;
 
 public class ContainerUtils {
     public static class ItemContainer {
-        public static boolean handleDirection(Direction dir, ServerLevel serverLevel, BlockPos pos, BlockState state, BlockEntity entity, Flow flow, int numItems) {
-            BlockPos otherPos = pos.relative(dir);
+        public static boolean handleDirection(Direction dir, ServerWorld serverLevel, BlockPos pos, BlockState state, BlockEntity entity, Flow flow, int numItems) {
+            BlockPos otherPos = pos.offset(dir);
             BlockState otherState = serverLevel.getBlockState(otherPos);
 
             return transfer(serverLevel, pos, state, otherPos, otherState, dir, flow, entity, numItems);
         }
 
-        static boolean canExtract(Direction direction, ServerLevel serverLevel, BlockPos blockPos, BlockState state) {
+        static boolean canExtract(Direction direction, ServerWorld serverLevel, BlockPos blockPos, BlockState state) {
             return state.getBlock() instanceof ItemPumpBlock;
         }
 
-        static boolean canPushOut(Direction direction, ServerLevel serverLevel, BlockPos blockPos, BlockState state, BlockEntity blockEntity) {
-            BlockPos otherPos = blockPos.relative(direction);
+        static boolean canPushOut(Direction direction, ServerWorld serverLevel, BlockPos blockPos, BlockState state, BlockEntity blockEntity) {
+            BlockPos otherPos = blockPos.offset(direction);
             BlockState otherState = serverLevel.getBlockState(otherPos);
 
             // An item pump can always push out
@@ -54,7 +52,7 @@ public class ContainerUtils {
                 if (otherState.getBlock() instanceof ItemPipeBlock) {
                     BooleanProperty prop = AbstractPipeBlock.getFacingPropertyFromDirection(direction.getOpposite());
 
-                    if (!otherState.getValue(prop))
+                    if (!otherState.get(prop))
                         return false;
 
                     BlockEntity otherBlockEntity = serverLevel.getBlockEntity(otherPos);
@@ -70,7 +68,7 @@ public class ContainerUtils {
                 return false;
         }
 
-        static boolean transferFirstItem(ServerLevel level, BlockPos sourcePos, BlockPos destPos, Direction dir, int transferAmount) {
+        static boolean transferFirstItem(ServerWorld level, BlockPos sourcePos, BlockPos destPos, Direction dir, int transferAmount) {
             Storage<ItemVariant> source = ItemStorage.SIDED.find(level, sourcePos, dir);
             Storage<ItemVariant> dest = ItemStorage.SIDED.find(level, destPos, dir.getOpposite());
 
@@ -97,7 +95,7 @@ public class ContainerUtils {
             return false;
         }
 
-        static boolean transfer(ServerLevel level,
+        static boolean transfer(ServerWorld level,
                                        BlockPos sourcePos,
                                        BlockState sourceState,
                                        BlockPos destPos,
@@ -124,20 +122,20 @@ public class ContainerUtils {
     }
 
     public static class FluidContainer {
-        public static boolean handleDirection(Direction dir, ServerLevel serverLevel, BlockPos pos, BlockState state, BlockEntity entity, Flow flow, long amount) {
-            BlockPos otherPos = pos.relative(dir);
-            BlockState otherState = serverLevel.getBlockState(otherPos);
+        public static boolean handleDirection(Direction dir, ServerWorld serverWorld, BlockPos pos, BlockState state, BlockEntity entity, Flow flow, long amount) {
+            BlockPos otherPos = pos.offset(dir);
+            BlockState otherState = serverWorld.getBlockState(otherPos);
 
-            return transfer(serverLevel, pos, state, otherPos, otherState, dir, flow, entity, amount);
+            return transfer(serverWorld, pos, state, otherPos, otherState, dir, flow, entity, amount);
         }
 
-        static boolean canExtract(Direction direction, ServerLevel serverLevel, BlockPos blockPos, BlockState state) {
+        static boolean canExtract(Direction direction, ServerWorld serverWorld, BlockPos blockPos, BlockState state) {
             return state.getBlock() instanceof FluidPumpBlock;
         }
 
-        static boolean canPushOut(Direction direction, ServerLevel serverLevel, BlockPos blockPos, BlockState state, BlockEntity blockEntity) {
-            BlockPos otherPos = blockPos.relative(direction);
-            BlockState otherState = serverLevel.getBlockState(otherPos);
+        static boolean canPushOut(Direction direction, ServerWorld serverWorld, BlockPos blockPos, BlockState state, BlockEntity blockEntity) {
+            BlockPos otherPos = blockPos.offset(direction);
+            BlockState otherState = serverWorld.getBlockState(otherPos);
 
             if (state.getBlock() instanceof FluidPumpBlock)
                 return true;
@@ -148,10 +146,10 @@ public class ContainerUtils {
                 if (otherState.getBlock() instanceof FluidPipeBlock) {
                     BooleanProperty prop = AbstractPipeBlock.getFacingPropertyFromDirection(direction.getOpposite());
 
-                    if (!otherState.getValue(prop))
+                    if (!otherState.get(prop))
                         return false;
 
-                    BlockEntity otherBlockEntity = serverLevel.getBlockEntity(otherPos);
+                    BlockEntity otherBlockEntity = serverWorld.getBlockEntity(otherPos);
 
                     if (!(otherBlockEntity instanceof FluidPipeBlockEntity otherPipe))
                         return false;
@@ -163,8 +161,8 @@ public class ContainerUtils {
                 return false;
         }
 
-        static boolean transferAmountToContainer(ServerLevel level, BlockPos destPos, Direction dir, FluidVariant fluidVariant, long amount) {
-            Storage<FluidVariant> dest = FluidStorage.SIDED.find(level, destPos, dir);
+        static boolean transferAmountToContainer(ServerWorld world, BlockPos destPos, Direction dir, FluidVariant fluidVariant, long amount) {
+            Storage<FluidVariant> dest = FluidStorage.SIDED.find(world, destPos, dir);
 
             if (dest == null || !dest.supportsInsertion())
                 return false;
@@ -181,9 +179,9 @@ public class ContainerUtils {
             return false;
         }
 
-        static boolean transferFromContainerToContainer(ServerLevel level, BlockPos sourcePos, BlockPos destPos, Direction dir, long amount) {
-            Storage<FluidVariant> source = FluidStorage.SIDED.find(level, sourcePos, dir);
-            Storage<FluidVariant> dest = FluidStorage.SIDED.find(level, destPos, dir.getOpposite());
+        static boolean transferFromContainerToContainer(ServerWorld world, BlockPos sourcePos, BlockPos destPos, Direction dir, long amount) {
+            Storage<FluidVariant> source = FluidStorage.SIDED.find(world, sourcePos, dir);
+            Storage<FluidVariant> dest = FluidStorage.SIDED.find(world, destPos, dir.getOpposite());
 
             if (source == null || dest == null || !source.supportsExtraction() || !dest.supportsInsertion())
                 return false;
@@ -209,7 +207,7 @@ public class ContainerUtils {
             return false;
         }
 
-        static boolean transfer(ServerLevel level,
+        static boolean transfer(ServerWorld world,
                                 BlockPos sourcePos,
                                 BlockState sourceState,
                                 BlockPos destPos,
@@ -219,19 +217,19 @@ public class ContainerUtils {
                                 BlockEntity blockEntity,
                                 long amount) {
 
-            Storage<FluidVariant> destStorage = FluidStorage.SIDED.find(level, destPos, dir);
+            Storage<FluidVariant> destStorage = FluidStorage.SIDED.find(world, destPos, dir);
 
             if (destStorage == null) {
-                if (level.getFluidState(destPos) != Fluids.EMPTY.defaultFluidState() && canExtract(dir, level, sourcePos, sourceState) && flow == Flow.INCOMING) {
-                    FluidState fluidState = level.getFluidState(destPos);
+                if (world.getFluidState(destPos) != Fluids.EMPTY.getDefaultState() && canExtract(dir, world, sourcePos, sourceState) && flow == Flow.INCOMING) {
+                    FluidState fluidState = world.getFluidState(destPos);
 
-                    if (!fluidState.isSource())
+                    if (!fluidState.isStill())
                         return false;
 
-                    FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
+                    FluidVariant fluidVariant = FluidVariant.of(fluidState.getFluid());
 
                     // This is if the block is a Fluid
-                    return transferAmountToContainer(level, sourcePos, dir, fluidVariant, Math.min(FluidConstants.BUCKET, amount));
+                    return transferAmountToContainer(world, sourcePos, dir, fluidVariant, Math.min(FluidConstants.BUCKET, amount));
                 }
                 return false;
             }
@@ -239,11 +237,11 @@ public class ContainerUtils {
             if (!(destStorage.supportsInsertion() || destStorage.supportsExtraction()))
                 return false;
 
-            if (flow == Flow.INCOMING && canExtract(dir, level, sourcePos, sourceState))
+            if (flow == Flow.INCOMING && canExtract(dir, world, sourcePos, sourceState))
                 // Transfer fluid from container (ie: Fluid Tank) to the source
-                return transferFromContainerToContainer(level, destPos, sourcePos, dir, amount);
-            else if (flow == Flow.OUTGOING && canPushOut(dir, level, sourcePos, sourceState, blockEntity))
-                return transferFromContainerToContainer(level, sourcePos, destPos, dir, amount);
+                return transferFromContainerToContainer(world, destPos, sourcePos, dir, amount);
+            else if (flow == Flow.OUTGOING && canPushOut(dir, world, sourcePos, sourceState, blockEntity))
+                return transferFromContainerToContainer(world, sourcePos, destPos, dir, amount);
 
             return false;
         }

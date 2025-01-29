@@ -1,16 +1,6 @@
 package teddy.minecraftautomation.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import teddy.minecraftautomation.MinecraftAutomation;
-import teddy.minecraftautomation.utils.OrientedContainer;
-import teddy.minecraftautomation.utils.Tooltip;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -33,6 +23,16 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.utils.OrientedContainer;
+import teddy.minecraftautomation.utils.Tooltip;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractPumpBlock extends BlockWithEntity implements OrientedContainer {
     public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;

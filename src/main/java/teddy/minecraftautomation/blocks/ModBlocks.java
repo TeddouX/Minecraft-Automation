@@ -1,8 +1,5 @@
 package teddy.minecraftautomation.blocks;
 
-import teddy.minecraftautomation.MinecraftAutomation;
-
-import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -13,6 +10,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.utils.ContainerUtils;
+
+import java.util.function.Function;
 
 public class ModBlocks {
     public static final Block WOODEN_ITEM_PIPE = registerItemPipe("wooden_item_pipe", 10, 1, 18,
@@ -75,6 +76,7 @@ public class ModBlocks {
             AbstractBlock.Settings.copy(Blocks.NETHERITE_BLOCK).strength(1f, 0.5f));
     public static final Block NETHERITE_FLUID_TANK = registerFluidTank("netherite_fluid_tank", 7000,
             AbstractBlock.Settings.copy(Blocks.NETHERITE_BLOCK).strength(1.5f, 1f));
+    public static final Block CRUSHER = register("crusher", CrusherBlock::new, AbstractBlock.Settings.create(), true);
 
     static Block registerItemPipe(String path, int maxPressure, int itemsPerTransfer, int transferCooldown, AbstractBlock.Settings properties) {
         return register(path,
@@ -84,7 +86,9 @@ public class ModBlocks {
 
     static Block registerFluidPipe(String path, int maxPressure, int flowPerTick, int maxFluidCapacityMb, int transferCooldown, AbstractBlock.Settings properties) {
         return register(path,
-                (AbstractBlock.Settings props) -> new FluidPipeBlock(maxPressure, flowPerTick, maxFluidCapacityMb, transferCooldown, props),
+                (AbstractBlock.Settings props) -> new FluidPipeBlock(maxPressure,
+                        (int) ContainerUtils.convertMbToDroplets(flowPerTick),
+                        (int) ContainerUtils.convertMbToDroplets(maxFluidCapacityMb), transferCooldown, props),
                 properties.nonOpaque().blockVision(Blocks::never), true);
     }
 
@@ -96,18 +100,20 @@ public class ModBlocks {
 
     static Block registerFluidPump(String path, int inducedPressure, int flowPerTick, int maxFluidCapacityMb, int transferCooldown, AbstractBlock.Settings properties) {
         return register(path,
-                (AbstractBlock.Settings props) -> new FluidPumpBlock(inducedPressure, flowPerTick, maxFluidCapacityMb, transferCooldown, props),
+                (AbstractBlock.Settings props) -> new FluidPumpBlock(inducedPressure,
+                        (int) ContainerUtils.convertMbToDroplets(flowPerTick),
+                        (int) ContainerUtils.convertMbToDroplets(maxFluidCapacityMb), transferCooldown, props),
                 properties.nonOpaque().blockVision(Blocks::never), true);
     }
 
     static Block registerFluidTank(String path, int maxFluidCapacityMb, AbstractBlock.Settings properties) {
         return register(path,
-                (AbstractBlock.Settings props) -> new FluidTankBlock(maxFluidCapacityMb, props),
+                (AbstractBlock.Settings props) -> new FluidTankBlock((int) ContainerUtils.convertMbToDroplets(maxFluidCapacityMb), props),
                 properties.nonOpaque().blockVision(Blocks::never), true);
     }
 
     static Block register(String name, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings properties, boolean registerBlockItem) {
-        Identifier id = Identifier.of(MinecraftAutomation.MOD_ID, name);
+        Identifier id = MinecraftAutomation.id(name);
         RegistryKey<Block> blockResourceKey = RegistryKey.of(RegistryKeys.BLOCK, id);
         Block block = factory.apply(properties.registryKey(blockResourceKey));
 

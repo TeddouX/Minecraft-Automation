@@ -1,6 +1,9 @@
 package teddy.minecraftautomation.blocks.entity;
 
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -13,8 +16,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.FluidPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
+import teddy.minecraftautomation.utils.ImplementedFluidStorage;
 
-public class FluidPumpBlockEntity extends BlockEntityWithFluidStorage {
+public class FluidPumpBlockEntity extends BlockEntity implements ImplementedFluidStorage {
     private int flowPerTick;
     private int transferCooldown;
     public int inducedPressure;
@@ -22,12 +26,16 @@ public class FluidPumpBlockEntity extends BlockEntityWithFluidStorage {
     public int cooldown = 0;
     public int directionIndex = 0;
 
+    public SingleVariantStorage<FluidVariant> fluidStorage;
+
     public FluidPumpBlockEntity(BlockPos blockPos, BlockState blockState, int inducedPressure, int flowPerTick, int maxFluidCapacityMb, int transferCooldown) {
-        super(ModBlockEntities.FLUID_PUMP_BE, blockPos, blockState, maxFluidCapacityMb);
+        super(ModBlockEntities.FLUID_PUMP_BE, blockPos, blockState);
 
         this.inducedPressure = inducedPressure;
         this.flowPerTick = flowPerTick;
         this.transferCooldown = transferCooldown;
+
+        this.fluidStorage = initializeFluidStorage(maxFluidCapacityMb, this::markDirty);
     }
 
     public static void tick(World level, BlockPos blockPos, BlockState state, FluidPumpBlockEntity fluidPumpBlockEntity) {
@@ -98,7 +106,7 @@ public class FluidPumpBlockEntity extends BlockEntityWithFluidStorage {
 
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
-        writeFluidStorageNbt(this.fluidStorage, nbt, provider);
+        writeFluidStorageNbt(nbt, provider);
 
         nbt.putInt("cooldown", this.cooldown);
         nbt.putInt("transferCooldown", this.transferCooldown);
@@ -113,10 +121,17 @@ public class FluidPumpBlockEntity extends BlockEntityWithFluidStorage {
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
         super.readNbt(nbt, provider);
 
+        this.fluidStorage = readFluidStorageNbt(nbt, provider, this::markDirty);
+
         this.cooldown = nbt.getInt("cooldown");
         this.transferCooldown = nbt.getInt("transferCooldown");
         this.directionIndex = nbt.getInt("directionIndex");
         this.flowPerTick = nbt.getInt("flowPerTick");
         this.inducedPressure = nbt.getInt("inducedPressure");
+    }
+
+    @Override
+    public SingleVariantStorage<FluidVariant> getFluidStorage() {
+        return this.fluidStorage;
     }
 }

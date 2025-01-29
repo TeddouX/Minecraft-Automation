@@ -46,6 +46,7 @@ public class ModEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add(ModBlocks.NETHERITE_FLUID_PIPE.asItem(), "Netherite Fluid Pipe");
         translationBuilder.add(ModBlocks.NETHERITE_FLUID_PUMP.asItem(), "Netherite Fluid Pump");
         translationBuilder.add(ModBlocks.NETHERITE_FLUID_TANK.asItem(), "Netherite Fluid Tank");
+        translationBuilder.add(ModBlocks.CRUSHER.asItem(), "Crusher");
 
         translationBuilder.add(ModItems.PIPE_JOINT, "Pipe Joint");
         translationBuilder.add(ModItems.WRENCH, "Wrench");

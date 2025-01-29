@@ -13,7 +13,7 @@ public class ModItems {
     public static final Item WRENCH = register("wrench", new Item.Settings().maxDamage(100));
 
     public static Item register(String name, Item.Settings properties) {
-        Identifier id = Identifier.of(MinecraftAutomation.MOD_ID, name);
+        Identifier id = MinecraftAutomation.id(name);
         RegistryKey<Item> itemResourceKey = RegistryKey.of(RegistryKeys.ITEM, id);
 
         return Registry.register(Registries.ITEM, id, new Item(properties.registryKey(itemResourceKey)));

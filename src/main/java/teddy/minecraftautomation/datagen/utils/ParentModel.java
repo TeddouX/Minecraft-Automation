@@ -1,21 +1,21 @@
 package teddy.minecraftautomation.datagen.utils;
 
 import com.google.gson.JsonObject;
-import teddy.minecraftautomation.MinecraftAutomation;
-
-import java.util.function.BiConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.client.data.ModelIds;
 import net.minecraft.client.data.ModelSupplier;
 import net.minecraft.client.data.TextureKey;
 import net.minecraft.util.Identifier;
+import teddy.minecraftautomation.MinecraftAutomation;
+
+import java.util.function.BiConsumer;
 
 public class ParentModel {
     public final Identifier model;
     public final TextureKey textureSlot;
     public final String suffix;
     public ParentModel(String model, String suffix, TextureKey textureSlot) {
-        this.model = Identifier.of(MinecraftAutomation.MOD_ID, "block/" + model);
+        this.model = MinecraftAutomation.id("block/" + model);
         this.suffix = suffix;
         this.textureSlot = textureSlot;
     }

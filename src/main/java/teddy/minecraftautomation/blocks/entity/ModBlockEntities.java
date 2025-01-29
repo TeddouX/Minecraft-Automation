@@ -37,7 +37,8 @@ public class ModBlockEntities {
             (BlockPos pos, BlockState state) -> new FluidTankBlockEntity(pos, state, 0),
             ((blockEntity, dir) -> blockEntity.fluidStorage),
             ModBlocks.WOODEN_FLUID_TANK, ModBlocks.COPPER_FLUID_TANK, ModBlocks.IRON_FLUID_TANK, ModBlocks.GOLD_FLUID_TANK, ModBlocks.DIAMOND_FLUID_TANK, ModBlocks.NETHERITE_FLUID_TANK);
-
+    public static final BlockEntityType<CrusherBlockEntity> CRUSHER_BE = registerBlockEntityWithFluidStorage("crusher_be", CrusherBlockEntity::new,
+            (blockEntity, dir) -> blockEntity.fluidStorage, ModBlocks.CRUSHER);
 
     static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(String path, FabricBlockEntityTypeBuilder.Factory<T> factory, Block... blocks) {
         return Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(MinecraftAutomation.MOD_ID, path),

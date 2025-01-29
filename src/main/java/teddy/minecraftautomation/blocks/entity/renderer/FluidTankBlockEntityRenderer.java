@@ -1,7 +1,6 @@
 package teddy.minecraftautomation.blocks.entity.renderer;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -17,14 +16,12 @@ public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTa
     public void render(FluidTankBlockEntity blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider multiBufferSource, int light, int overlay) {
         float radius = pixels(8f);
 
-        SingleVariantStorage<FluidVariant> fluidTank = blockEntity.fluidStorage;
-
-        if (fluidTank == null || fluidTank.isResourceBlank() || fluidTank.amount <= 0)
+        if (blockEntity.getStoredVariant() == FluidVariant.blank() || blockEntity.getStoredAmount() <= 0)
             return;
 
-        float fillPercentage = (float) fluidTank.amount / fluidTank.getCapacity();
+        float fillPercentage = (float) blockEntity.getStoredAmount() / blockEntity.getCapacity();
         float fluidHeight = pixels(fillPercentage * 16f);
 
-        RenderingUtils.renderFluidVariant(fluidTank.variant, fluidHeight, radius, 0f, blockEntity, multiBufferSource, matrices, light, overlay, false);
+        RenderingUtils.renderFluidVariant(blockEntity.getStoredVariant(), fluidHeight, radius, 0f, blockEntity, multiBufferSource, matrices, light, overlay, false);
     }
 }

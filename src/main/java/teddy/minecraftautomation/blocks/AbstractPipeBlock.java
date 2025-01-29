@@ -1,22 +1,6 @@
 package teddy.minecraftautomation.blocks;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import teddy.minecraftautomation.MinecraftAutomation;
-import teddy.minecraftautomation.items.ModItems;
-import teddy.minecraftautomation.utils.OrientedContainer;
-import teddy.minecraftautomation.utils.Tooltip;
-import teddy.minecraftautomation.utils.WrenchableBlock;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -43,6 +27,18 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.MinecraftAutomation;
+import teddy.minecraftautomation.items.ModItems;
+import teddy.minecraftautomation.utils.OrientedContainer;
+import teddy.minecraftautomation.utils.Tooltip;
+import teddy.minecraftautomation.utils.WrenchableBlock;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractPipeBlock extends BlockWithEntity implements OrientedContainer, WrenchableBlock {
     final int maxPressure;

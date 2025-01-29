@@ -3,7 +3,6 @@ package teddy.minecraftautomation.datagen.utils;
 import net.minecraft.block.Block;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
 import teddy.minecraftautomation.MinecraftAutomation;
 
 public class ModBlockTags {
@@ -14,6 +13,6 @@ public class ModBlockTags {
     public static final TagKey<Block> FLUID_TANKS = create("fluid_tanks");
 
     static TagKey<Block> create(String path) {
-        return TagKey.of(RegistryKeys.BLOCK, Identifier.of(MinecraftAutomation.MOD_ID, path));
+        return TagKey.of(RegistryKeys.BLOCK, MinecraftAutomation.id(path));
     }
 }

@@ -1,26 +1,22 @@
 package teddy.minecraftautomation.blocks.entity;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 import teddy.minecraftautomation.blocks.ItemPumpBlock;
 import teddy.minecraftautomation.utils.ContainerUtils;
 import teddy.minecraftautomation.utils.ImplementedInventory;
 
-public class ItemPumpBlockEntity extends LockableContainerBlockEntity implements ImplementedInventory {
-    private DefaultedList<ItemStack> items;
+public class ItemPumpBlockEntity extends BlockEntity implements ImplementedInventory {
+    private DefaultedList<ItemStack> items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     private int itemsPerTransfer;
     private int transferCooldown;
     public int inducedPressure;
@@ -33,8 +29,6 @@ public class ItemPumpBlockEntity extends LockableContainerBlockEntity implements
         this.inducedPressure = inducedPressure;
         this.itemsPerTransfer = itemsPerTransfer;
         this.transferCooldown = transferCooldown;
-
-        this.items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     }
 
     public static void tick(World level, BlockPos blockPos, BlockState state, ItemPumpBlockEntity itemPumpBlockEntity) {
@@ -107,26 +101,6 @@ public class ItemPumpBlockEntity extends LockableContainerBlockEntity implements
         this.itemsPerTransfer = nbt.getInt("itemsPerTransfer");
         this.transferCooldown = nbt.getInt("transferCooldown");
         this.inducedPressure = nbt.getInt("inducedPressure");
-    }
-
-    @Override
-    public @NotNull DefaultedList<ItemStack> getHeldStacks() {
-        return items;
-    }
-
-    @Override
-    protected void setHeldStacks(DefaultedList<ItemStack> items) {
-        this.items = items;
-    }
-
-    @Override
-    protected @NotNull Text getContainerName() {
-        return Text.empty();
-    }
-
-    @Override
-    protected ScreenHandler createScreenHandler(int i, PlayerInventory inventory) {
-        return null;
     }
 
     @Override

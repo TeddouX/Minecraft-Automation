@@ -1,8 +1,9 @@
 package teddy.minecraftautomation.utils;
 
-import java.util.ArrayList;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.Direction;
+
+import java.util.ArrayList;
 
 public interface OrientedContainer {
     ArrayList<Direction> getItemInventoryInputDirections(BlockState blockState);

@@ -2,6 +2,7 @@ package teddy.minecraftautomation;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import teddy.minecraftautomation.blocks.ModBlocks;
@@ -9,6 +10,8 @@ import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
 import teddy.minecraftautomation.blocks.entity.renderer.FluidPipeBlockEntityRenderer;
 import teddy.minecraftautomation.blocks.entity.renderer.FluidPumpBlockEntityRenderer;
 import teddy.minecraftautomation.blocks.entity.renderer.FluidTankBlockEntityRenderer;
+import teddy.minecraftautomation.screen.CrusherScreen;
+import teddy.minecraftautomation.screen.handlers.ModScreenHandlers;
 
 public class MinecraftAutomationClient implements ClientModInitializer {
 	@Override
@@ -35,5 +38,7 @@ public class MinecraftAutomationClient implements ClientModInitializer {
 		BlockEntityRendererFactories.register(ModBlockEntities.FLUID_PIPE_BE, FluidPipeBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(ModBlockEntities.FLUID_PUMP_BE, FluidPumpBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(ModBlockEntities.FLUID_TANK_BE, FluidTankBlockEntityRenderer::new);
+
+		HandledScreens.register(ModScreenHandlers.CRUSHER_SCREEN_HANDLER, CrusherScreen::new);
 	}
 }

@@ -1,14 +1,6 @@
 package teddy.minecraftautomation.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import teddy.minecraftautomation.blocks.entity.ItemPumpBlockEntity;
-import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
-import teddy.minecraftautomation.utils.Tooltip;
-
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,6 +16,14 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import teddy.minecraftautomation.blocks.entity.ItemPumpBlockEntity;
+import teddy.minecraftautomation.blocks.entity.ModBlockEntities;
+import teddy.minecraftautomation.utils.Tooltip;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemPumpBlock extends AbstractPumpBlock {
     private final int itemsPerTransfer;

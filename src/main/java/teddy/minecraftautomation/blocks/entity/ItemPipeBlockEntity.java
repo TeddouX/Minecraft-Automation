@@ -1,6 +1,16 @@
 package teddy.minecraftautomation.blocks.entity;
 
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import teddy.minecraftautomation.blocks.AbstractPipeBlock;
 import teddy.minecraftautomation.blocks.ItemPipeBlock;
 import teddy.minecraftautomation.blocks.ItemPumpBlock;
@@ -8,25 +18,10 @@ import teddy.minecraftautomation.utils.ContainerUtils;
 import teddy.minecraftautomation.utils.ImplementedInventory;
 
 import java.util.ArrayList;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 // All credit goes to https://github.com/mestiez/unflavoured-pipes for the tick method logic
-public class ItemPipeBlockEntity extends LockableContainerBlockEntity implements ImplementedInventory {
-    private DefaultedList<ItemStack> items;
+public class ItemPipeBlockEntity extends BlockEntity implements ImplementedInventory {
+    private DefaultedList<ItemStack> items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     private int maxPressure;
     private int itemsPerTransfer;
     private int transferCooldown;
@@ -40,8 +35,6 @@ public class ItemPipeBlockEntity extends LockableContainerBlockEntity implements
         this.itemsPerTransfer = itemsPerTransfer;
         this.transferCooldown = transferCooldown;
         this.maxPressure = maxPressure;
-
-        this.items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     }
 
     public static void tick(World level, BlockPos blockPos, BlockState state, ItemPipeBlockEntity itemPipeBlockEntity) {
@@ -143,26 +136,6 @@ public class ItemPipeBlockEntity extends LockableContainerBlockEntity implements
         this.transferCooldown = nbt.getInt("transferCooldown");
         this.pressure = nbt.getInt("pressure");
         this.maxPressure = nbt.getInt("maxPressure");
-    }
-
-    @Override
-    protected void setHeldStacks(DefaultedList<ItemStack> items) {
-        this.items = items;
-    }
-
-    @Override
-    protected ScreenHandler createScreenHandler(int i, PlayerInventory inventory) {
-        return null;
-    }
-
-    @Override
-    protected Text getContainerName() {
-        return null;
-    }
-
-    @Override
-    protected DefaultedList<ItemStack> getHeldStacks() {
-        return this.items;
     }
 
     @Override

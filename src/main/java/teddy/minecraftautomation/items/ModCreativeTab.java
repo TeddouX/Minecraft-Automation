@@ -8,14 +8,11 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import teddy.minecraftautomation.MinecraftAutomation;
 import teddy.minecraftautomation.blocks.ModBlocks;
 
 public class ModCreativeTab {
-    public static final RegistryKey<ItemGroup> MOD_CREATIVE_TAB_KEY = RegistryKey.of(
-            Registries.ITEM_GROUP.getKey(),
-            Identifier.of(MinecraftAutomation.MOD_ID, "creative_tab"));
+    public static final RegistryKey<ItemGroup> MOD_CREATIVE_TAB_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), MinecraftAutomation.id("creative_tab"));
 
     public static final ItemGroup MOD_CREATIVE_TAB = FabricItemGroup.builder()
             .icon(() -> new ItemStack(ModBlocks.WOODEN_ITEM_PIPE))

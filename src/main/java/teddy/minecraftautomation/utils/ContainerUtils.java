@@ -247,6 +247,14 @@ public class ContainerUtils {
         }
     }
 
+    public static long convertDropletsToMb(long droplets) {
+        return (droplets / 81);
+    }
+
+    public static long convertMbToDroplets(long mb) {
+        return mb * 81;
+    }
+
     public enum Flow {
         OUTGOING,
         INCOMING
